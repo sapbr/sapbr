@@ -169,7 +169,7 @@ body.mode-sn .sn-only { display: table-cell; }
     <div class="field"><label for="pIbsUf"><span data-i18n="ibsUf">IBS UF (%)</span> <span class="badge" id="bOf2" hidden>RFB</span></label><input id="pIbsUf" class="n" inputmode="decimal"></div>
     <div class="field"><label for="pIbsMun"><span data-i18n="ibsMun">IBS Mun. (%)</span> <span class="badge" id="bOf3" hidden>RFB</span></label><input id="pIbsMun" class="n" inputmode="decimal"></div>
     <div class="field"><label for="pIs" data-i18n="isLbl">IS ad valorem (%)</label><input id="pIs" class="n" inputmode="decimal"></div>
-    <div class="field"><label for="pMk" data-i18n="markup">Markup de venda</label><input id="pMk" class="n" inputmode="decimal"></div>
+    <div class="field"><label for="pMk" data-i18n="markup">Markup de venda (%)</label><input id="pMk" class="n" inputmode="decimal"></div>
     <div class="field flags">
       <label class="chk"><input type="checkbox" id="fExcl"> <span data-i18n="fExcl">Excluir ICMS da base do PIS/COFINS (Tema 69)</span></label>
       <label class="chk" id="fStatWrap"><input type="checkbox" id="fStat"> <span data-i18n="fStat">CBS/IBS estatístico em 2026 (não soma ao total)</span></label>
@@ -254,7 +254,7 @@ const I18N = {
   pt: {
     docTitle: "Calculadora da Reforma Tributária", title: "Calculadora da Reforma Tributária",
     lead: "Simula CBS, IBS e Imposto Seletivo produto a produto com as tabelas e fórmulas oficiais da Receita Federal, no regime regular ou no Simples Nacional.",
-    restore: "Restaurar exemplo", clear: "Limpar produtos", csv: "Copiar CSV", markup: "Markup de venda",
+    restore: "Restaurar exemplo", clear: "Limpar produtos", csv: "Copiar CSV", markup: "Markup de venda (%)",
     regimeLbl: "Regime de tributação", regRR: "Regime regular", regSN: "Simples Nacional", ano: "Ano do fato gerador",
     ibsUf: "IBS UF (%)", ibsMun: "IBS Mun. (%)", isLbl: "IS ad valorem (%)",
     snTitle: "Simples Nacional", snSub: "Alíquotas efetivas do PGDAS-D por anexo, em pontos percentuais.",
@@ -311,7 +311,7 @@ const I18N = {
   en: {
     docTitle: "Brazil Tax Reform Calculator", title: "Brazil Tax Reform Calculator",
     lead: "Simulates CBS, IBS and the Selective Tax (IS) product by product with the Receita Federal's official tables and formulas, under the regular regime or the Simples Nacional.",
-    restore: "Restore example", clear: "Clear products", csv: "Copy CSV", markup: "Sales markup",
+    restore: "Restore example", clear: "Clear products", csv: "Copy CSV", markup: "Sales markup (%)",
     regimeLbl: "Tax regime", regRR: "Regular regime", regSN: "Simples Nacional", ano: "Tax event year",
     ibsUf: "State IBS (%)", ibsMun: "Municipal IBS (%)", isLbl: "IS ad valorem (%)",
     snTitle: "Simples Nacional", snSub: "Effective PGDAS-D rates by annex, in percentage points.",
@@ -629,7 +629,7 @@ function fillParams() {
   const r = ratesFor(params.ano);
   $("pCbs").value = fmtIn(r.cbs); $("pIbsUf").value = fmtIn(r.ibsUF); $("pIbsMun").value = fmtIn(r.ibsMun);
   ["bOf1", "bOf2", "bOf3"].forEach((b) => { $(b).hidden = !r.official; });
-  $("pIs").value = fmtIn(params.is); $("pMk").value = fmtIn(params.markup);
+  $("pIs").value = fmtIn(params.is); $("pMk").value = fmtIn(round2((params.markup - 1) * 100));
   $("fExcl").checked = params.exclIcms !== false;
   $("fStat").checked = params.stat !== false; $("fStat").disabled = params.ano !== 2026;
   $("fStatWrap").classList.toggle("off", params.ano !== 2026); $("fStatWrap").title = params.ano !== 2026 ? T("fStatOff") : "";
@@ -663,7 +663,7 @@ Object.entries(paramIds).forEach(([id, k]) => {
 [["pIs", "is"], ["pMk", "markup"]].forEach(([id, k]) => $(id).addEventListener("input", (e) => {
   const v = parseNum(e.target.value);
   if (isNaN(v) || v < 0) { e.target.setAttribute("aria-invalid", "true"); return; }
-  e.target.removeAttribute("aria-invalid"); params[k] = v; if (k === "markup") updatePlaceholders(); refresh();
+  e.target.removeAttribute("aria-invalid"); params[k] = k === "markup" ? 1 + v / 100 : v; if (k === "markup") updatePlaceholders(); refresh();
 }));
 document.querySelectorAll("#segRegime button").forEach((b) => b.addEventListener("click", () => {
   params.regime = b.dataset.reg; if (params.regime === "sn" && params.ano < 2027) params.ano = 2027; fillParams(); renderEditor(); refresh();
