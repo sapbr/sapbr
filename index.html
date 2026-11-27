@@ -219,7 +219,7 @@ body.mode-sn .sn-only { display: table-cell; }
       <table id="editor">
         <thead><tr>
           <th data-i18n="desc">Descrição</th><th>NCM</th><th class="r" data-i18n="qty">Qtd</th><th class="r" data-i18n="buy">Valor compra</th><th class="r" data-i18n="sell">Valor venda</th>
-          <th class="r">ICMS %</th><th class="r">PIS %</th><th class="r">COFINS %</th><th>cClassTrib</th><th>IS</th><th class="sn-only" data-i18n="ativ">Atividade SN</th><th></th>
+          <th class="r">ICMS %</th><th class="r">PIS %</th><th class="r">COFINS %</th><th class="r">IPI %</th><th>cClassTrib</th><th>IS</th><th data-i18n="cfH">Cons. final</th><th data-i18n="zfmH">IPI 2027+ (ZFM)</th><th class="sn-only" data-i18n="ativ">Atividade SN</th><th></th>
         </tr></thead>
         <tbody></tbody>
       </table>
@@ -261,7 +261,7 @@ const I18N = {
     inTitle: "Entradas (compras)", outTitle: "Saídas (vendas)",
     chA: "Apuração do período", chT: "Tributos por espécie nas saídas",
     products: "Produtos", productsSub: "Valores em R$, alíquotas em %. Deixe a venda em branco para usar o markup. As cClassTrib vinculadas ao NCM aparecem primeiro.", add: "Adicionar produto", tpl: "Baixar modelo Excel", imp: "Importar Excel", toastImp: "{n} produtos importados.", toastImpWarn: "{n} produtos importados. {w} cClassTrib não encontrada(s) foram trocadas por 000001: confira a coluna cClassTrib.", toastImpErr: "Não foi possível ler a planilha. Use o modelo Excel da calculadora.", toastImpEmpty: "Nenhum produto encontrado na planilha.", toastXlsxErr: "Não foi possível carregar o leitor de Excel. Verifique a conexão.",
-    desc: "Descrição", qty: "Qtd", buy: "Valor compra", sell: "Valor venda", ativ: "Atividade SN", remove: "Remover", seletivo: "Sujeito ao Imposto Seletivo",
+    desc: "Descrição", qty: "Qtd", buy: "Valor compra", sell: "Valor venda", ativ: "Atividade SN", remove: "Remover", seletivo: "Sujeito ao Imposto Seletivo", cfH: "Cons. final", zfmH: "IPI 2027+ (ZFM)", cfL: "Venda para consumidor final (uso/consumo, ativo ou não contribuinte): o IPI entra na base do ICMS", zfmL: "Produto com industrialização incentivada na ZFM: o IPI continua sendo cobrado a partir de 2027",
     grpNcm: "Vinculadas ao NCM", grpAll: "Todas as cClassTrib vigentes", ncmWarn: "NCM não vinculado a esta cClassTrib na tabela oficial (REG-011)",
     detail: "Memória de cálculo por produto", tabIn: "Entradas", tabOut: "Saídas", howTitle: "Como o cálculo é feito",
     aCur: "Sistema atual", bRef: "Reforma em {ano}", aSN: "Dentro do Simples Nacional", bRR: "IBS/CBS por fora (regime regular)",
@@ -273,8 +273,8 @@ const I18N = {
     vPeriod: "no período", vPp: "p.p. de carga efetiva", vCred: "crédito a mais para os clientes",
     iDeb: "Variação de débitos", iCred: "Variação de créditos", iRes: "Variação do resultado", iBurden: "Variação da carga", iCust: "Variação do crédito ao cliente",
     tUp: "aumenta", tDown: "diminui", tFlat: "sem variação",
-    eBuy: "Compra bruta", eCred: "Créditos ICMS/PIS/COFINS", eNet: "Compra líquida", cNow: "Carga atual", eTot: "Compra total (reforma)", eCredR: "Créditos na reforma", cRef: "Carga reforma",
-    sSell: "Venda bruta", sDeb: "Débitos ICMS/PIS/COFINS", sNet: "Venda líquida", sTot: "Venda total (reforma)", sDebR: "Débitos na reforma",
+    eBuy: "Compra bruta", eCred: "Créditos ICMS/IPI/PIS/COFINS", eNet: "Compra líquida", cNow: "Carga atual", eTot: "Compra total (reforma)", eCredR: "Créditos na reforma", cRef: "Carga reforma",
+    sSell: "Venda bruta", sDeb: "Débitos ICMS/IPI/PIS/COFINS", sNet: "Venda líquida", sTot: "Venda total (reforma)", sDebR: "Débitos na reforma",
     rbsn: "Receita bruta (Simples)", snDue: "IBS/CBS devidos no Simples", rrDeb: "Débitos IBS/CBS por fora", rrCred: "Créditos IBS/CBS por fora",
     cDeb: "Débitos", cCred: "Créditos", cRes: "Resultado",
     product: "Produto", colVal: "Valor", colBase: "Base IBS/CBS", colRed: "Red. %", colTot: "Total reforma", colDif: "Diferença", now: "atual", ref: "reforma", total: "Total",
@@ -296,6 +296,7 @@ const I18N = {
       "Tabelas e fórmulas da base oficial da Receita Federal: cClassTrib, CST, percentual de redução por tributo, vínculo NCM × cClassTrib, NCM sujeitos ao Imposto Seletivo e tabelas do Simples Nacional.",
       "Regime regular: base = valor − ICMS − PIS − COFINS + IS. Alíquota efetiva = alíquota × (1 − redução da cClassTrib), pela fórmula do tratamento tributário oficial. Tributo = base × alíquota efetiva, arredondado em 2 casas (meio para o par, como a API).",
       "PIS/COFINS: sobre o valor sem o ICMS (Tema 69 do STF) quando a opção estiver ligada. Em 2026, com a opção de CBS/IBS estatístico ligada, os valores são destacados mas não somam ao total da nota nem ao resultado, como no SAP; a base de CBS/IBS segue a base unificada oficial (valor − ICMS − PIS − COFINS).",
+      "IPI: por fora, sobre o valor do produto, e não integra a base de CBS/IBS. Na venda para consumidor final (uso/consumo, ativo ou não contribuinte) o IPI entra na base do ICMS (CF art. 155, §2º, XI; LC 87/96 art. 13, §2º). A partir de 2027 o IPI tem alíquota zero, exceto para produtos com industrialização incentivada na ZFM (ADCT art. 126, III, a; LC 214/2025 art. 454): marque IPI 2027+ (ZFM) para manter a alíquota informada.",
       "Créditos: IBS/CBS das compras quando a cClassTrib permite apropriação pelo adquirente; o IS não gera crédito. Transição: PIS/COFINS só em 2026; ICMS integral até 2028 e reduzido a 90%, 80%, 70% e 60% de 2029 a 2032 (EC 132/2023). A partir de 2027 o valor líquido é mantido e o ICMS (por dentro) é recalculado sobre o novo preço sem PIS/COFINS: ICMS = (base líquida + IS) ÷ (1 − alíquota do ano) × alíquota do ano.",
       "Simples Nacional: receita bruta do item × fator do tipo de receita (tpRBSN da cClassTrib) × alíquota efetiva do anexo da atividade. O destino devido ou pendente segue a tabela oficial de regimes. A comparação mostra o mesmo mix com IBS/CBS por fora, no regime regular.",
       "Fora do escopo: tributação monofásica de combustíveis, compras governamentais, diferimento parcial e regimes específicos. Simulação ilustrativa; não substitui a calculadora oficial nem parecer fiscal."
@@ -317,7 +318,7 @@ const I18N = {
     inTitle: "Inbound (purchases)", outTitle: "Outbound (sales)",
     chA: "Tax assessment for the period", chT: "Taxes on sales by type",
     products: "Products", productsSub: "Values in BRL (R$), rates in %. Leave the sales value blank to use the markup. cClassTrib codes linked to the NCM are listed first.", add: "Add product", tpl: "Download Excel template", imp: "Import Excel", toastImp: "{n} products imported.", toastImpWarn: "{n} products imported. {w} unknown cClassTrib code(s) were replaced with 000001: check the cClassTrib column.", toastImpErr: "Could not read the spreadsheet. Use the calculator's Excel template.", toastImpEmpty: "No products found in the spreadsheet.", toastXlsxErr: "Could not load the Excel reader. Check your connection.",
-    desc: "Description", qty: "Qty", buy: "Purchase value", sell: "Sales value", ativ: "SN activity", remove: "Remove", seletivo: "Subject to the Selective Tax",
+    desc: "Description", qty: "Qty", buy: "Purchase value", sell: "Sales value", ativ: "SN activity", remove: "Remove", seletivo: "Subject to the Selective Tax", cfH: "Final consumer", zfmH: "IPI 2027+ (ZFM)", cfL: "Sale to a final consumer (use/consumption, fixed asset or non-taxpayer): IPI is included in the ICMS base", zfmL: "Product with incentivized industrialization in the Manaus Free Trade Zone: IPI is still charged from 2027",
     grpNcm: "Linked to the NCM", grpAll: "All cClassTrib in force", ncmWarn: "NCM not linked to this cClassTrib in the official table (REG-011)",
     detail: "Calculation detail by product", tabIn: "Inbound", tabOut: "Outbound", howTitle: "How it calculates",
     aCur: "Current system", bRef: "Tax Reform in {ano}", aSN: "Within the Simples Nacional", bRR: "IBS/CBS outside Simples (regular regime)",
@@ -329,8 +330,8 @@ const I18N = {
     vPeriod: "for the period", vPp: "p.p. of effective burden", vCred: "more credit for customers",
     iDeb: "Change in debits", iCred: "Change in credits", iRes: "Change in net tax", iBurden: "Change in burden", iCust: "Change in customer credit",
     tUp: "increases", tDown: "decreases", tFlat: "no change",
-    eBuy: "Gross purchases", eCred: "ICMS/PIS/COFINS credits", eNet: "Net purchases", cNow: "Current burden", eTot: "Total purchases (reform)", eCredR: "Reform credits", cRef: "Reform burden",
-    sSell: "Gross sales", sDeb: "ICMS/PIS/COFINS debits", sNet: "Net sales", sTot: "Total sales (reform)", sDebR: "Reform debits",
+    eBuy: "Gross purchases", eCred: "ICMS/IPI/PIS/COFINS credits", eNet: "Net purchases", cNow: "Current burden", eTot: "Total purchases (reform)", eCredR: "Reform credits", cRef: "Reform burden",
+    sSell: "Gross sales", sDeb: "ICMS/IPI/PIS/COFINS debits", sNet: "Net sales", sTot: "Total sales (reform)", sDebR: "Reform debits",
     rbsn: "Gross revenue (Simples)", snDue: "IBS/CBS due within Simples", rrDeb: "IBS/CBS debits outside Simples", rrCred: "IBS/CBS credits outside Simples",
     cDeb: "Debits", cCred: "Credits", cRes: "Net tax",
     product: "Product", colVal: "Value", colBase: "IBS/CBS base", colRed: "Red. %", colTot: "Reform total", colDif: "Difference", now: "current", ref: "reform", total: "Total",
@@ -352,6 +353,7 @@ const I18N = {
       "Tables and formulas from the Receita Federal's official database: cClassTrib, CST, reduction percentage per tax, NCM × cClassTrib links, NCMs subject to the Selective Tax and the Simples Nacional tables.",
       "Regular regime: base = value − ICMS − PIS − COFINS + IS. Effective rate = rate × (1 − cClassTrib reduction), using the official tax treatment formula. Tax = base × effective rate, rounded to 2 decimals (half to even, like the API).",
       "PIS/COFINS: on the value net of ICMS (Supreme Court Tema 69) when that option is on. In 2026, with the statistical CBS/IBS option on, the amounts are shown but not added to the invoice total or net tax, as in SAP; the CBS/IBS base follows the official unified base (value − ICMS − PIS − COFINS).",
+      "IPI: charged on top of the product value and not part of the CBS/IBS base. On a sale to a final consumer (use/consumption, fixed asset or non-taxpayer) IPI is included in the ICMS base (Federal Constitution art. 155, par. 2, XI; LC 87/96 art. 13, par. 2). From 2027 IPI rates are zero, except for products with incentivized industrialization in the Manaus Free Trade Zone (ADCT art. 126, III, a; LC 214/2025 art. 454): tick IPI 2027+ (ZFM) to keep the rate entered.",
       "Credits: IBS/CBS on purchases when the cClassTrib allows the buyer to take credit; IS is not creditable. Transition: PIS/COFINS only in 2026; ICMS in full through 2028 and reduced to 90%, 80%, 70% and 60% from 2029 to 2032 (Constitutional Amendment 132/2023). From 2027 the net value is kept and ICMS (charged inside the price) is recalculated on the new price without PIS/COFINS: ICMS = (net base + IS) ÷ (1 − the year's rate) × the year's rate.",
       "Simples Nacional: item gross revenue × revenue-type factor (tpRBSN of the cClassTrib) × effective rate of the activity's annex. Due or pending follows the official regime table. The comparison shows the same mix with IBS/CBS paid outside Simples, under the regular regime.",
       "Out of scope: single-phase fuel taxation, government purchases, partial deferral and special regimes. Illustrative simulation; not a substitute for the official calculator or for tax advice."
@@ -473,7 +475,7 @@ const DEMO = [
   ["Leite UHT integral 1L", "04012010", 15000, 63000, 7, 0, 0, "200003", false],
   ["Detergente líquido 500ml", "34025000", 8200, 18860, 17, PIS, COF, "000001", false],
 ].map(([descricao, ncm, qtd, compra, icms, pis, cofins, cct, seletivo]) =>
-  ({ descricao, ncm, qtd, compra, venda: null, icms, pis, cofins, cct, seletivo, ativ: "01" }));
+  ({ descricao, ncm, qtd, compra, venda: null, icms, pis, cofins, ipi: 0, cct, seletivo, cf: false, zfm: false, ativ: "01" }));
 const DEF_PARAMS = () => ({ regime: "rr", ano: 2027, rates: {}, is: 0, markup: 1.32, snReg: "SN_PLENO", fatorR: false, exclIcms: true, stat: true, sn: JSON.parse(JSON.stringify(DEF_SN)) });
 
 const KEY = "calc-reforma-rfb-v2";
@@ -497,7 +499,11 @@ function calcRR(it, y, tipo) {
   const vt = tipo === "saida"
     ? (it.venda === null || it.venda === undefined || it.venda === "" ? round2(it.compra * params.markup) : Number(it.venda))
     : Number(it.compra) || 0;
-  const icms = round2(vt * (it.icms || 0) / 100);
+  // IPI is charged on top of the product value. On a sale to a final consumer (use/consumption, fixed asset or non-taxpayer)
+  // IPI is part of the ICMS base (CF art. 155, par. 2, XI; LC 87/96 art. 13, par. 2).
+  const ipiRate = (Number(it.ipi) || 0) / 100, cfSale = tipo === "saida" && !!it.cf;
+  const ipi = round2(vt * ipiRate);
+  const icms = round2((vt + (cfSale ? ipi : 0)) * (it.icms || 0) / 100);
   const bPC = params.exclIcms ? vt - icms : vt;
   const pis = round2(bPC * (it.pis || 0) / 100), cofins = round2(bPC * (it.cofins || 0) / 100);
   const base0 = vt - icms - pis - cofins;
@@ -506,7 +512,7 @@ function calcRR(it, y, tipo) {
   const stat = !!params.stat && y === 2026;
   const isv = y >= 2027 && it.seletivo ? round2(base0 * params.is / 100) : 0;
   const tr = trOf(ct, dt);
-  const out = { descricao: it.descricao, ncm: it.ncm, cct: ct ? ct.cd : "", valor: vt, icms, pis, cofins, is: isv };
+  const out = { descricao: it.descricao, ncm: it.ncm, cct: ct ? ct.cd : "", valor: vt, bruto: round2(vt + ipi), icms, ipi, pis, cofins, is: isv };
   let baseC = base0 + isv;
   const res = {};
   for (const [t, aliqPct] of [["CBS", r.cbs], ["IBSUF", r.ibsUF], ["IBSMun", r.ibsMun]]) {
@@ -523,14 +529,21 @@ function calcRR(it, y, tipo) {
   out.base = round2(baseC); out.cbs = res.CBS; out.ibsUF = res.IBSUF; out.ibsMun = res.IBSMun; out.ibs = round2(res.IBSUF + res.IBSMun);
   // ICMS is charged "por dentro". When PIS/COFINS leave the price (2027+), the same net value (base0) is kept
   // and ICMS is grossed up on that new price, instead of being kept on the old price that still embedded PIS/COFINS.
+  // From 2027 IPI rates go to zero, except for products with incentivized industrialization in the ZFM (ADCT art. 126, III, a; LC 214/2025 art. 454).
   const icmsRateY = (it.icms || 0) / 100 * icmsFactor(y);
-  out.icmsY = pisCofinsOn(y) ? round2(icms * icmsFactor(y)) : icmsRateY > 0 && icmsRateY < 1 ? round2((base0 + isv) / (1 - icmsRateY) * icmsRateY) : 0;
+  if (pisCofinsOn(y)) { out.icmsY = round2(icms * icmsFactor(y)); out.ipiY = ipi; }
+  else {
+    const iY = it.zfm ? ipiRate : 0, k = 1 - icmsRateY * (1 + (cfSale ? iY : 0));
+    const price = k > 0 ? (base0 + isv) / k : base0 + isv;
+    out.icmsY = k > 0 ? round2(price * icmsRateY * (1 + (cfSale ? iY : 0))) : 0;
+    out.ipiY = round2(price * iY);
+  }
   out.pisY = pisCofinsOn(y) ? pis : 0; out.cofinsY = pisCofinsOn(y) ? cofins : 0;
   const ibscbsEf = stat ? 0 : out.cbs + out.ibs;
-  out.total = round2(base0 + isv + ibscbsEf + out.icmsY + out.pisY + out.cofinsY);
-  out.dif = round2(out.total - vt);
-  out.atual = round2(icms + pis + cofins);
-  const legado = out.icmsY + out.pisY + out.cofinsY;
+  out.total = round2(base0 + isv + ibscbsEf + out.icmsY + out.pisY + out.cofinsY + out.ipiY);
+  out.dif = round2(out.total - out.bruto);
+  out.atual = round2(icms + pis + cofins + ipi);
+  const legado = out.icmsY + out.pisY + out.cofinsY + out.ipiY;
   const cred = stat ? 0 : (ct && ct.credCBS ? out.cbs : 0) + (ct && ct.credIBS ? out.ibs : 0);
   out.reforma = tipo === "entrada" ? round2(legado + cred) : round2(legado + ibscbsEf + out.is);
   out.ibscbs = round2(ibscbsEf);
@@ -563,17 +576,17 @@ function calcAll() {
   const valid = items.filter((it) => (it.descricao || "").trim() !== "" || Number(it.compra) > 0);
   const ent = valid.map((it) => calcRR(it, y, "entrada"));
   const sai = valid.map((it) => calcRR(it, y, "saida"));
-  const E = { bruta: sumBy(ent, "valor"), atual: sumBy(ent, "atual"), reforma: sumBy(ent, "reforma"), total: sumBy(ent, "total"), ibscbs: sumBy(ent, "ibscbsCred") };
-  const S = { bruta: sumBy(sai, "valor"), atual: sumBy(sai, "atual"), reforma: sumBy(sai, "reforma"), total: sumBy(sai, "total"), ibscbs: sumBy(sai, "ibscbs"), is: sumBy(sai, "is") };
+  const E = { bruta: sumBy(ent, "bruto"), atual: sumBy(ent, "atual"), reforma: sumBy(ent, "reforma"), total: sumBy(ent, "total"), ibscbs: sumBy(ent, "ibscbsCred") };
+  const S = { bruta: sumBy(sai, "bruto"), atual: sumBy(sai, "atual"), reforma: sumBy(sai, "reforma"), total: sumBy(sai, "total"), ibscbs: sumBy(sai, "ibscbs"), is: sumBy(sai, "is") };
   const rep = { y, ent, sai, E, S, mode: params.regime };
   if (params.regime === "rr") {
     const rA = round2(S.atual - E.atual), rB = round2(S.reforma - E.reforma);
     rep.A = { debitos: S.atual, creditos: E.atual, resultado: rA, carga: pctOf(rA, S.bruta) };
     rep.B = { debitos: S.reforma, creditos: E.reforma, resultado: rB, carga: pctOf(rB, S.total) };
     const tr = (arr, k) => sumBy(arr, k);
-    rep.chartCats = ["ICMS", "PIS", "COFINS", "CBS", "IBS", "IS"];
-    rep.chartA = [tr(sai, "icms"), tr(sai, "pis"), tr(sai, "cofins"), 0, 0, 0];
-    rep.chartB = [tr(sai, "icmsY"), tr(sai, "pisY"), tr(sai, "cofinsY"), tr(sai, "cbs"), tr(sai, "ibs"), tr(sai, "is")];
+    rep.chartCats = ["ICMS", "IPI", "PIS", "COFINS", "CBS", "IBS", "IS"];
+    rep.chartA = [tr(sai, "icms"), tr(sai, "ipi"), tr(sai, "pis"), tr(sai, "cofins"), 0, 0, 0];
+    rep.chartB = [tr(sai, "icmsY"), tr(sai, "ipiY"), tr(sai, "pisY"), tr(sai, "cofinsY"), tr(sai, "cbs"), tr(sai, "ibs"), tr(sai, "is")];
   } else {
     const sn = valid.map((it) => calcSN(it, y));
     rep.sn = sn;
@@ -672,8 +685,11 @@ function rowHtml(it, i) {
     <td><input class="n" data-k="icms" inputmode="decimal" value="${n(it.icms)}" aria-label="ICMS %"></td>
     <td><input class="n" data-k="pis" inputmode="decimal" value="${n(it.pis)}" aria-label="PIS %"></td>
     <td><input class="n" data-k="cofins" inputmode="decimal" value="${n(it.cofins)}" aria-label="COFINS %"></td>
+    <td><input class="n" data-k="ipi" inputmode="decimal" value="${n(it.ipi || 0)}" aria-label="IPI %"></td>
     <td><select class="ct${bad ? " bad" : ""}" data-k="cct" aria-label="cClassTrib" title="${bad ? esc(T("ncmWarn")) : ""}">${ctOptions(it)}</select></td>
     <td><input type="checkbox" data-k="seletivo" ${it.seletivo ? "checked" : ""} aria-label="${T("seletivo")}"></td>
+    <td><input type="checkbox" data-k="cf" ${it.cf ? "checked" : ""} aria-label="${T("cfL")}" title="${esc(T("cfL"))}"></td>
+    <td><input type="checkbox" data-k="zfm" ${it.zfm ? "checked" : ""} aria-label="${T("zfmL")}" title="${esc(T("zfmL"))}"></td>
     <td class="sn-only"><select data-k="ativ" aria-label="${T("ativ")}">${ativs.map((a) => `<option value="${a.c}"${a.c === it.ativ ? " selected" : ""} title="${esc(a.desc)}">${a.c} · ${esc(a.rotulo)} · ${esc(a.desc.length > 44 ? a.desc.slice(0, 42) + "…" : a.desc)}</option>`).join("")}</select></td>
     <td><button type="button" class="del">${T("remove")}</button></td>
   </tr>`;
@@ -690,7 +706,7 @@ $("editor").addEventListener("input", (e) => {
   const i = +tr.dataset.i, it = items[i], k = e.target.dataset.k;
   if (k === "descricao" || k === "cct" || k === "ativ") it[k] = e.target.value;
   else if (k === "ncm") it.ncm = e.target.value;
-  else if (k === "seletivo") it[k] = e.target.checked;
+  else if (k === "seletivo" || k === "cf" || k === "zfm") it[k] = e.target.checked;
   else {
     const v = parseNum(e.target.value);
     if (k === "venda") it.venda = isNaN(v) ? null : v;
@@ -714,7 +730,7 @@ $("editor").addEventListener("click", (e) => {
   items.splice(+e.target.closest("tr").dataset.i, 1); renderEditor(); refresh();
 });
 $("btnAdd").addEventListener("click", () => {
-  items.push({ descricao: "", ncm: "", qtd: 0, compra: 0, venda: null, icms: 17, pis: PIS, cofins: COF, cct: "000001", seletivo: false, ativ: "01" });
+  items.push({ descricao: "", ncm: "", qtd: 0, compra: 0, venda: null, icms: 17, pis: PIS, cofins: COF, ipi: 0, cct: "000001", seletivo: false, cf: false, zfm: false, ativ: "01" });
   renderEditor(); refresh();
   const rows = $("editor").tBodies[0].rows; rows[rows.length - 1].querySelector("input").focus();
 });
@@ -761,7 +777,7 @@ function detail(rep) {
   } else {
     rows = tab === "e" ? rep.ent : rep.sai;
     const lab = tab === "e" ? T("credits") : T("debits");
-    cols = [["valor", T("colVal")], ["cct", "cClassTrib", 1], ["red", T("colRed")], ["icms", "ICMS"], ["pis", "PIS"], ["cofins", "COFINS"], ["base", T("colBase")], ["cbs", "CBS"], ["ibsUF", "IBS UF"], ["ibsMun", "IBS Mun."], ["is", "IS"], ["icmsY", "ICMS " + rep.y], ["total", T("colTot")], ["dif", T("colDif")], ["atual", lab + " " + T("now")], ["reforma", lab + " " + T("ref")]];
+    cols = [["valor", T("colVal")], ["cct", "cClassTrib", 1], ["red", T("colRed")], ["icms", "ICMS"], ["ipi", "IPI"], ["pis", "PIS"], ["cofins", "COFINS"], ["base", T("colBase")], ["cbs", "CBS"], ["ibsUF", "IBS UF"], ["ibsMun", "IBS Mun."], ["is", "IS"], ["icmsY", "ICMS " + rep.y], ["ipiY", "IPI " + rep.y], ["total", T("colTot")], ["dif", T("colDif")], ["atual", lab + " " + T("now")], ["reforma", lab + " " + T("ref")]];
   }
   let h = `<thead><tr><th>${T("product")}</th><th>NCM</th>${cols.map(([, t]) => `<th class="r">${t}</th>`).join("")}</tr></thead><tbody>`;
   rows.forEach((r) => {
@@ -868,7 +884,7 @@ function cleanShared(o) {
   const its = o.items.slice(0, 500).map((it) => ({
     descricao: str(it.descricao), ncm: str(it.ncm, 10).replace(/\D/g, ""), qtd: num(it.qtd), compra: num(it.compra),
     venda: it.venda === null || it.venda === "" || it.venda === undefined ? null : num(it.venda),
-    icms: num(it.icms), pis: num(it.pis), cofins: num(it.cofins),
+    icms: num(it.icms), pis: num(it.pis), cofins: num(it.cofins), ipi: num(it.ipi), cf: !!it.cf, zfm: !!it.zfm,
     cct: /^\d{6}$/.test(String(it.cct)) ? String(it.cct) : "000001", seletivo: !!it.seletivo,
     ativ: /^[A-Za-z0-9]{1,4}$/.test(String(it.ativ)) ? String(it.ativ) : "01",
   }));
@@ -916,25 +932,28 @@ const XCOLS = [
   ["icms", ["icms %", "icms"]],
   ["pis", ["pis %", "pis"]],
   ["cofins", ["cofins %", "cofins"]],
+  ["ipi", ["ipi %", "ipi"]],
   ["cct", ["cclasstrib"]],
   ["seletivo", ["is", "imposto seletivo", "selective tax", "is (s/n)", "is (y/n)"]],
+  ["cf", ["consumidor final", "consumidor final (s/n)", "cons. final", "final consumer", "final consumer (y/n)"]],
+  ["zfm", ["ipi 2027+ zfm (s/n)", "ipi 2027+ zfm (y/n)", "ipi 2027+ (zfm)", "ipi 2027+ zfm", "zfm"]],
   ["ativ", ["atividade sn", "sn activity", "atividade"]],
 ];
 const normH = (h) => String(h ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
 const TPL = {
-  pt: { heads: ["Descrição", "NCM", "Qtd", "Valor compra", "Valor venda", "ICMS %", "PIS %", "COFINS %", "cClassTrib", "IS (S/N)", "Atividade SN"], yes: "N", sheet: "Produtos", help: "Instruções", file: "modelo-produtos-calculadora-reforma.xlsx",
-    rows: [["Coluna", "Como preencher"], ["Descrição", "Nome do produto (texto livre)."], ["NCM", "8 dígitos, só números. A coluna está como texto para manter zeros à esquerda."], ["Qtd", "Quantidade no período."], ["Valor compra", "Valor total de compra em R$, com ICMS, PIS e COFINS embutidos. Use 0 se não houver compra."], ["Valor venda", "Valor total de venda em R$, como na NF-e de hoje: com ICMS, PIS e COFINS embutidos e sem IPI. Deixe em branco para usar o markup."], ["ICMS %, PIS %, COFINS %", "Alíquotas atuais em %, por exemplo 18, 1,65 e 7,6."], ["cClassTrib", "Código de 6 dígitos da tabela oficial. Em branco = 000001."], ["IS (S/N)", "S se o produto está sujeito ao Imposto Seletivo; N ou em branco se não."], ["Atividade SN", "Só para o Simples Nacional: código da atividade (padrão 01)."], ["", ""], ["Importação", "A importação substitui os produtos que estão na tela. A linha de exemplo pode ser apagada ou sobrescrita."]] },
-  en: { heads: ["Description", "NCM", "Qty", "Purchase value", "Sales value", "ICMS %", "PIS %", "COFINS %", "cClassTrib", "IS (Y/N)", "SN activity"], yes: "N", sheet: "Products", help: "Instructions", file: "tax-reform-calculator-products-template.xlsx",
-    rows: [["Column", "How to fill it in"], ["Description", "Product name (free text)."], ["NCM", "8 digits, numbers only. The column is formatted as text to keep leading zeros."], ["Qty", "Quantity in the period."], ["Purchase value", "Total purchase value in BRL, with ICMS, PIS and COFINS embedded. Use 0 if there is no purchase."], ["Sales value", "Total sales value in BRL, as on today's NF-e: with ICMS, PIS and COFINS embedded and without IPI. Leave blank to use the markup."], ["ICMS %, PIS %, COFINS %", "Current rates in %, for example 18, 1.65 and 7.6."], ["cClassTrib", "6-digit code from the official table. Blank = 000001."], ["IS (Y/N)", "Y if the product is subject to the Selective Tax; N or blank if not."], ["SN activity", "Simples Nacional only: activity code (default 01)."], ["", ""], ["Import", "Importing replaces the products on screen. The example row can be deleted or overwritten."]] },
+  pt: { heads: ["Descrição", "NCM", "Qtd", "Valor compra", "Valor venda", "ICMS %", "PIS %", "COFINS %", "IPI %", "cClassTrib", "IS (S/N)", "Consumidor final (S/N)", "IPI 2027+ ZFM (S/N)", "Atividade SN"], yes: "N", sheet: "Produtos", help: "Instruções", file: "modelo-produtos-calculadora-reforma.xlsx",
+    rows: [["Coluna", "Como preencher"], ["Descrição", "Nome do produto (texto livre)."], ["NCM", "8 dígitos, só números. A coluna está como texto para manter zeros à esquerda."], ["Qtd", "Quantidade no período."], ["Valor compra", "Valor total de compra em R$, com ICMS, PIS e COFINS embutidos. Use 0 se não houver compra."], ["Valor venda", "Valor total de venda em R$, como na NF-e de hoje: com ICMS, PIS e COFINS embutidos e sem IPI. Deixe em branco para usar o markup."], ["ICMS %, PIS %, COFINS %, IPI %", "Alíquotas atuais em %, por exemplo 18, 1,65, 7,6 e 10. IPI em branco = 0."], ["cClassTrib", "Código de 6 dígitos da tabela oficial. Em branco = 000001."], ["IS (S/N)", "S se o produto está sujeito ao Imposto Seletivo; N ou em branco se não."], ["Consumidor final (S/N)", "S se a venda é para consumidor final (uso/consumo, ativo imobilizado ou não contribuinte): o IPI entra na base do ICMS."], ["IPI 2027+ ZFM (S/N)", "S se o produto tem industrialização incentivada na Zona Franca de Manaus e mantém o IPI a partir de 2027. Para os demais, o IPI vai a zero em 2027."], ["Atividade SN", "Só para o Simples Nacional: código da atividade (padrão 01)."], ["", ""], ["Importação", "A importação substitui os produtos que estão na tela. A linha de exemplo pode ser apagada ou sobrescrita."]] },
+  en: { heads: ["Description", "NCM", "Qty", "Purchase value", "Sales value", "ICMS %", "PIS %", "COFINS %", "IPI %", "cClassTrib", "IS (Y/N)", "Final consumer (Y/N)", "IPI 2027+ ZFM (Y/N)", "SN activity"], yes: "N", sheet: "Products", help: "Instructions", file: "tax-reform-calculator-products-template.xlsx",
+    rows: [["Column", "How to fill it in"], ["Description", "Product name (free text)."], ["NCM", "8 digits, numbers only. The column is formatted as text to keep leading zeros."], ["Qty", "Quantity in the period."], ["Purchase value", "Total purchase value in BRL, with ICMS, PIS and COFINS embedded. Use 0 if there is no purchase."], ["Sales value", "Total sales value in BRL, as on today's NF-e: with ICMS, PIS and COFINS embedded and without IPI. Leave blank to use the markup."], ["ICMS %, PIS %, COFINS %, IPI %", "Current rates in %, for example 18, 1.65, 7.6 and 10. Blank IPI = 0."], ["cClassTrib", "6-digit code from the official table. Blank = 000001."], ["IS (Y/N)", "Y if the product is subject to the Selective Tax; N or blank if not."], ["Final consumer (Y/N)", "Y if the sale is to a final consumer (use/consumption, fixed asset or non-taxpayer): IPI is included in the ICMS base."], ["IPI 2027+ ZFM (Y/N)", "Y if the product has incentivized industrialization in the Manaus Free Trade Zone and keeps IPI from 2027. For all other products IPI goes to zero in 2027."], ["SN activity", "Simples Nacional only: activity code (default 01)."], ["", ""], ["Import", "Importing replaces the products on screen. The example row can be deleted or overwritten."]] },
 };
 $("btnTpl").addEventListener("click", async () => {
   let X; try { X = await loadXlsx(); } catch (e) { toast(T("toastXlsxErr")); return; }
   const t = TPL[lang === "en" ? "en" : "pt"];
-  const ex = [lang === "en" ? "Liquid detergent 500ml" : "Detergente líquido 500ml", "34025000", 1, 0, 1070.68, 18, 1.65, 7.6, "000001", t.yes, "01"];
+  const ex = [lang === "en" ? "Liquid detergent 500ml" : "Detergente líquido 500ml", "34025000", 1, 0, 1070.68, 18, 1.65, 7.6, 0, "000001", t.yes, t.yes, t.yes, "01"];
   const ws = X.utils.aoa_to_sheet([t.heads, ex]);
-  for (const col of ["B", "I", "K"]) for (let r = 1; r <= 1000; r++) { const a = col + r; if (!ws[a]) ws[a] = { t: "s", v: "" }; ws[a].z = "@"; }
-  ws["!ref"] = "A1:K1000";
-  ws["!cols"] = [{ wch: 34 }, { wch: 11 }, { wch: 8 }, { wch: 14 }, { wch: 14 }, { wch: 9 }, { wch: 8 }, { wch: 11 }, { wch: 12 }, { wch: 10 }, { wch: 13 }];
+  for (const col of ["B", "J", "N"]) for (let r = 1; r <= 1000; r++) { const a = col + r; if (!ws[a]) ws[a] = { t: "s", v: "" }; ws[a].z = "@"; }
+  ws["!ref"] = "A1:N1000";
+  ws["!cols"] = [{ wch: 34 }, { wch: 11 }, { wch: 8 }, { wch: 14 }, { wch: 14 }, { wch: 9 }, { wch: 8 }, { wch: 11 }, { wch: 8 }, { wch: 12 }, { wch: 10 }, { wch: 21 }, { wch: 20 }, { wch: 13 }];
   const wh = X.utils.aoa_to_sheet(t.rows); wh["!cols"] = [{ wch: 24 }, { wch: 110 }];
   const wb = X.utils.book_new(); X.utils.book_append_sheet(wb, ws, t.sheet); X.utils.book_append_sheet(wb, wh, t.help);
   X.writeFile(wb, t.file);
@@ -980,12 +999,13 @@ $("fileImp").addEventListener("change", async (ev) => {
       let cct = cellStr(g("cct")).replace(/\D/g, "");
       cct = cct ? cct.padStart(6, "0") : "000001";
       if (!known.has(cct)) { warn++; cct = "000001"; }
+      const YES = ["s", "sim", "y", "yes", "x", "1", "true", "verdadeiro"], yes = (k) => YES.includes(normH(cellStr(g(k))));
       const isv = normH(cellStr(g("seletivo")));
       const pct = (k, d) => { const v = cellNum(g(k)); return v === null ? (map[k] === undefined ? d : 0) : v; };
       const ativ = cellStr(g("ativ")).replace(/[^A-Za-z0-9]/g, "").slice(0, 4);
       out.push({ descricao: desc, ncm: ncm.slice(0, 8), qtd: qtd ?? 0, compra: compra ?? 0, venda: venda,
-        icms: pct("icms", 17), pis: pct("pis", PIS), cofins: pct("cofins", COF), cct,
-        seletivo: ["s", "sim", "y", "yes", "x", "1", "true", "verdadeiro"].includes(isv), ativ: ativ ? ativ.padStart(2, "0") : "01" });
+        icms: pct("icms", 17), pis: pct("pis", PIS), cofins: pct("cofins", COF), ipi: pct("ipi", 0), cct,
+        seletivo: YES.includes(isv), cf: yes("cf"), zfm: yes("zfm"), ativ: ativ ? ativ.padStart(2, "0") : "01" });
     }
     if (!out.length) { toast(T("toastImpEmpty")); return; }
     items = out; renderEditor(); refresh();
