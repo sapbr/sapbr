@@ -484,11 +484,10 @@ const KEY = "calc-reforma-rfb-v2";
 let items = JSON.parse(JSON.stringify(DEMO));
 let params = DEF_PARAMS();
 let tab = "s";
-try {
-  const saved = JSON.parse(localStorage.getItem(KEY) || "null");
-  if (saved && Array.isArray(saved.items)) { items = saved.items; params = { ...DEF_PARAMS(), ...saved.params }; }
-} catch (e) {}
-const save = () => { try { localStorage.setItem(KEY, JSON.stringify({ items, params })); } catch (e) {} };
+// Privacy: products and values are never persisted. Opening the calculator always starts from the example data;
+// only a shared link (#z=...) preloads a simulation. Any simulation saved by older versions is erased here.
+try { localStorage.removeItem(KEY); } catch (e) {}
+const save = () => {};
 
 function ratesFor(y) {
   const off = officialRef(y);
@@ -1045,6 +1044,7 @@ document.querySelectorAll(".lang button").forEach((b) => b.addEventListener("cli
 applyLang(lang);
 $("verdict").innerHTML = '<span class="loading">…</span>';
 const sharedP = unpackState(location.hash).catch(() => null);
+window.addEventListener("hashchange", () => { if (/^#[zj]=/.test(location.hash)) location.reload(); });
 Promise.all([fetch("data.json", { cache: "no-cache" }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }), sharedP]).then(([d, shared]) => {
   if (shared) {
     items = shared.items; params = shared.params;
