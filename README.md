@@ -2,7 +2,7 @@
 
 Interactive calculator for Brazil's Tax Reform (CBS, IBS and the Selective Tax, IS) built on the Receita Federal's official open-source calculators. It compares today's ICMS, PIS and COFINS with the reform, product by product, under the regular regime or the Simples Nacional. Available in English (US) and Portuguese (BR); add `?lang=en` or `?lang=pt` to the URL.
 
-Live: https://leandropia.github.io/sapbr/
+Live: https://sapbr.github.io/sapbr/
 
 ## Official data, updated daily
 
