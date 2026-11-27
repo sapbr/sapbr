@@ -55,6 +55,7 @@ h3 { font-size: 15px; }
 .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 header.top { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: end; justify-content: space-between; }
 header.top p { margin: 4px 0 0; max-width: 72ch; }
+.tip { cursor: help; text-decoration: underline dotted; text-underline-offset: 3px; }
 .brand { display: flex; gap: 14px; align-items: center; }
 .brand a.logo { flex: none; display: grid; place-items: center; width: 64px; height: 64px; border-radius: 12px; background: #fff; border: 1px solid var(--line); }
 .brand a.logo img { width: 56px; height: 56px; object-fit: contain; display: block; }
@@ -219,7 +220,7 @@ body.mode-sn .sn-only { display: table-cell; }
       <table id="editor">
         <thead><tr>
           <th data-i18n="desc">Descrição</th><th>NCM</th><th class="r" data-i18n="qty">Qtd</th><th class="r" data-i18n="buy">Valor compra</th><th class="r" data-i18n="sell">Valor venda</th>
-          <th class="r">ICMS %</th><th class="r">PIS %</th><th class="r">COFINS %</th><th class="r">IPI %</th><th>cClassTrib</th><th>IS</th><th data-i18n="cfH">Cons. final</th><th data-i18n="zfmH">IPI 2027+ (ZFM)</th><th class="sn-only" data-i18n="ativ">Atividade SN</th><th></th>
+          <th class="r">ICMS %</th><th class="r">PIS %</th><th class="r">COFINS %</th><th class="r">IPI %</th><th>cClassTrib</th><th>IS</th><th class="tip" data-i18n="cfH" data-i18n-tip="cfL">Cons. final</th><th class="tip" data-i18n="zfmH" data-i18n-tip="zfmL">IPI 2027+ (ZFM)</th><th class="sn-only tip" data-i18n="ativ" data-i18n-tip="ativT">Atividade SN</th><th></th>
         </tr></thead>
         <tbody></tbody>
       </table>
@@ -261,7 +262,7 @@ const I18N = {
     inTitle: "Entradas (compras)", outTitle: "Saídas (vendas)",
     chA: "Apuração do período", chT: "Tributos por espécie nas saídas",
     products: "Produtos", productsSub: "Valores em R$, alíquotas em %. Deixe a venda em branco para usar o markup. As cClassTrib vinculadas ao NCM aparecem primeiro.", add: "Adicionar produto", tpl: "Baixar modelo Excel", imp: "Importar Excel", toastImp: "{n} produtos importados.", toastImpWarn: "{n} produtos importados. {w} cClassTrib não encontrada(s) foram trocadas por 000001: confira a coluna cClassTrib.", toastImpErr: "Não foi possível ler a planilha. Use o modelo Excel da calculadora.", toastImpEmpty: "Nenhum produto encontrado na planilha.", toastXlsxErr: "Não foi possível carregar o leitor de Excel. Verifique a conexão.",
-    desc: "Descrição", qty: "Qtd", buy: "Valor compra", sell: "Valor venda", ativ: "Atividade SN", remove: "Remover", seletivo: "Sujeito ao Imposto Seletivo", cfH: "Cons. final", zfmH: "IPI 2027+ (ZFM)", cfL: "Venda para consumidor final (uso/consumo, ativo ou não contribuinte): o IPI entra na base do ICMS", zfmL: "Produto com industrialização incentivada na ZFM: o IPI continua sendo cobrado a partir de 2027",
+    desc: "Descrição", qty: "Qtd", buy: "Valor compra", sell: "Valor venda", ativ: "Atividade SN", ativT: "Usado só no Simples Nacional. Indica em qual anexo da LC 123 entra a receita do item, o que define a alíquota de CBS/IBS dentro do Simples (pCBSSN/pIBSSN). 01 = revenda de mercadorias ou venda de mercadorias industrializadas pelo contribuinte (Anexo I), o caso mais comum para produtos. 03 = venda de mercadorias com industrialização incentivada na ZFM (Anexo II). Os demais códigos são para serviços. Códigos da tabela oficial da Receita Federal.", remove: "Remover", seletivo: "Sujeito ao Imposto Seletivo", cfH: "Cons. final", zfmH: "IPI 2027+ (ZFM)", cfL: "Venda para consumidor final (uso/consumo, ativo ou não contribuinte): o IPI entra na base do ICMS", zfmL: "Produto com industrialização incentivada na ZFM: o IPI continua sendo cobrado a partir de 2027",
     grpNcm: "Vinculadas ao NCM", grpAll: "Todas as cClassTrib vigentes", ncmWarn: "NCM não vinculado a esta cClassTrib na tabela oficial (REG-011)",
     detail: "Memória de cálculo por produto", tabIn: "Entradas", tabOut: "Saídas", howTitle: "Como o cálculo é feito",
     aCur: "Sistema atual", bRef: "Reforma em {ano}", aSN: "Dentro do Simples Nacional", bRR: "IBS/CBS por fora (regime regular)",
@@ -318,7 +319,7 @@ const I18N = {
     inTitle: "Inbound (purchases)", outTitle: "Outbound (sales)",
     chA: "Tax assessment for the period", chT: "Taxes on sales by type",
     products: "Products", productsSub: "Values in BRL (R$), rates in %. Leave the sales value blank to use the markup. cClassTrib codes linked to the NCM are listed first.", add: "Add product", tpl: "Download Excel template", imp: "Import Excel", toastImp: "{n} products imported.", toastImpWarn: "{n} products imported. {w} unknown cClassTrib code(s) were replaced with 000001: check the cClassTrib column.", toastImpErr: "Could not read the spreadsheet. Use the calculator's Excel template.", toastImpEmpty: "No products found in the spreadsheet.", toastXlsxErr: "Could not load the Excel reader. Check your connection.",
-    desc: "Description", qty: "Qty", buy: "Purchase value", sell: "Sales value", ativ: "SN activity", remove: "Remove", seletivo: "Subject to the Selective Tax", cfH: "Final consumer", zfmH: "IPI 2027+ (ZFM)", cfL: "Sale to a final consumer (use/consumption, fixed asset or non-taxpayer): IPI is included in the ICMS base", zfmL: "Product with incentivized industrialization in the Manaus Free Trade Zone: IPI is still charged from 2027",
+    desc: "Description", qty: "Qty", buy: "Purchase value", sell: "Sales value", ativ: "SN activity", ativT: "Used only under the Simples Nacional. Sets which annex of LC 123 the item's revenue falls under, which defines the CBS/IBS rate inside Simples (pCBSSN/pIBSSN). 01 = resale of goods or sale of goods manufactured by the taxpayer (Annex I), the most common case for products. 03 = sale of goods with incentivized industrialization in the Manaus Free Trade Zone (Annex II). The other codes are for services. Codes from the Receita Federal's official table.", remove: "Remove", seletivo: "Subject to the Selective Tax", cfH: "Final consumer", zfmH: "IPI 2027+ (ZFM)", cfL: "Sale to a final consumer (use/consumption, fixed asset or non-taxpayer): IPI is included in the ICMS base", zfmL: "Product with incentivized industrialization in the Manaus Free Trade Zone: IPI is still charged from 2027",
     grpNcm: "Linked to the NCM", grpAll: "All cClassTrib in force", ncmWarn: "NCM not linked to this cClassTrib in the official table (REG-011)",
     detail: "Calculation detail by product", tabIn: "Inbound", tabOut: "Outbound", howTitle: "How it calculates",
     aCur: "Current system", bRef: "Tax Reform in {ano}", aSN: "Within the Simples Nacional", bRR: "IBS/CBS outside Simples (regular regime)",
@@ -953,6 +954,7 @@ $("btnTpl").addEventListener("click", async () => {
   const ws = X.utils.aoa_to_sheet([t.heads, ex]);
   for (const col of ["B", "J", "N"]) for (let r = 1; r <= 1000; r++) { const a = col + r; if (!ws[a]) ws[a] = { t: "s", v: "" }; ws[a].z = "@"; }
   ws["!ref"] = "A1:N1000";
+  for (const [a, k] of [["L1", "cfL"], ["M1", "zfmL"], ["N1", "ativT"]]) { ws[a].c = [{ a: "SAPBR", t: T(k) }]; ws[a].c.hidden = true; }
   ws["!cols"] = [{ wch: 34 }, { wch: 11 }, { wch: 8 }, { wch: 14 }, { wch: 14 }, { wch: 9 }, { wch: 8 }, { wch: 11 }, { wch: 8 }, { wch: 12 }, { wch: 10 }, { wch: 21 }, { wch: 20 }, { wch: 13 }];
   const wh = X.utils.aoa_to_sheet(t.rows); wh["!cols"] = [{ wch: 24 }, { wch: 110 }];
   const wb = X.utils.book_new(); X.utils.book_append_sheet(wb, ws, t.sheet); X.utils.book_append_sheet(wb, wh, t.help);
@@ -1020,6 +1022,7 @@ function applyLang(l) {
   document.documentElement.lang = l === "en" ? "en" : "pt-BR";
   document.title = T("docTitle");
   document.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = T(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-tip]").forEach((el) => { el.title = T(el.dataset.i18nTip); });
   document.querySelectorAll(".lang button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === l)));
   $("tabE").setAttribute("aria-selected", tab === "e"); $("tabS").setAttribute("aria-selected", tab === "s");
   $("howList").innerHTML = T("how").map((x) => `<li>${esc(x)}</li>`).join("");
