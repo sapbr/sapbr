@@ -1,17 +1,20 @@
 # SAPBR Technologies: Brazil Tax Reform Calculator
 
-Interactive calculator that simulates Brazil's Tax Reform (IBS, CBS and the Selective Tax, IS) side by side with today's ICMS, PIS and COFINS, product by product. Available in English (US) and Portuguese (BR); add `?lang=en` or `?lang=pt` to the URL to open it in a specific language.
+Interactive calculator for Brazil's Tax Reform (CBS, IBS and the Selective Tax, IS) built on the Receita Federal's official open-source calculators. It compares today's ICMS, PIS and COFINS with the reform, product by product, under the regular regime or the Simples Nacional. Available in English (US) and Portuguese (BR); add `?lang=en` or `?lang=pt` to the URL.
 
 Live: https://leandropia.github.io/sapbr/
 
-## Model
+## Official data, updated daily
 
-- Current system: ICMS, PIS and COFINS calculated "por dentro" (included in the price).
-- Reform: base = value − ICMS − PIS − COFINS; IBS and CBS = base × rate × regime factor (standard 1, 30% reduction 0.7, 60% reduction 0.4, zero rate 0); IS = base × rate on flagged items only.
-- Credits on purchases: current = ICMS+PIS+COFINS, reform = IBS+CBS (IS is not creditable). Debits on sales: current = ICMS+PIS+COFINS, reform = IBS+CBS+IS.
+A GitHub Actions workflow (`.github/workflows/publicar-calculadora.yml`) runs on every push and once a day. It downloads the official repositories, builds the official SQLite database from their Flyway scripts and exports `data.json` with `scripts/build_data.py`:
 
-Simplified and illustrative. It does not cover the 2026–2033 transition schedule or the Simples Nacional regime, and it is not tax advice.
+- [ReceitaFederal/calculadora-rtc-regime-regular](https://github.com/ReceitaFederal/calculadora-rtc-regime-regular): cClassTrib, CST, reduction percentages, tax treatment formulas, NCM links, Selective Tax NCMs and reference rates.
+- [ReceitaFederal/calculadora-rtc-simples-nacional](https://github.com/ReceitaFederal/calculadora-rtc-simples-nacional): Simples Nacional rules (activities, annexes, revenue types and assessment regimes), stored in the same database.
 
-Calculation logic adapted from [grupomg-tech/calculadora-reforma-tributaria](https://github.com/grupomg-tech/calculadora-reforma-tributaria) (MIT license). Example products are fictional.
+When the Receita Federal publishes a new database version, the calculator picks it up on the next run.
+
+## Scope
+
+Regular regime: base = value − ICMS − PIS − COFINS + IS; effective rate from the official formula `aliquota*(1-percentualReducao)`; tax rounded half to even. Simples Nacional: gross revenue × revenue-type factor × effective PGDAS-D rate of the activity's annex. Single-phase fuel taxation, government purchases and special regimes are out of scope. Illustrative simulation; not tax advice.
 
 Published by [SAPBR Technologies](https://sapbr.com).
