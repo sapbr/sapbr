@@ -263,8 +263,8 @@ const I18N = {
     anexo: "Anexo", exampleRates: "valores de exemplo; use as alíquotas efetivas do seu PGDAS-D",
     inTitle: "Entradas (compras)", outTitle: "Saídas (vendas)",
     chA: "Apuração do período", chT: "Tributos por espécie nas saídas",
-    products: "Produtos", productsSub: "Valores em R$, alíquotas em %. Deixe a venda em branco para usar o markup. As cClassTrib vinculadas ao NCM aparecem primeiro.", add: "Adicionar produto", tpl: "Baixar modelo Excel", imp: "Importar Excel", toastImp: "{n} produtos importados.", toastImpWarn: "{n} produtos importados. {w} cClassTrib não encontrada(s) foram trocadas por 000001: confira a coluna cClassTrib.", toastImpErr: "Não foi possível ler a planilha. Use o modelo Excel da calculadora.", toastImpEmpty: "Nenhum produto encontrado na planilha.", toastXlsxErr: "Não foi possível carregar o leitor de Excel. Verifique a conexão.",
-    desc: "Descrição", qty: "Qtd", buy: "Valor compra", sell: "Valor venda", ativ: "Atividade SN", ativT: "Usado só no Simples Nacional. Indica em qual anexo da LC 123 entra a receita do item, o que define a alíquota de CBS/IBS dentro do Simples (pCBSSN/pIBSSN). 01 = revenda de mercadorias ou venda de mercadorias industrializadas pelo contribuinte (Anexo I), o caso mais comum para produtos. 03 = venda de mercadorias com industrialização incentivada na ZFM (Anexo II). Os demais códigos são para serviços. Códigos da tabela oficial da Receita Federal.", remove: "Remover", seletivo: "Sujeito ao Imposto Seletivo", cfH: "Cons. final", zfmH: "IPI 2027+ (ZFM)", cfL: "Venda para consumidor final (uso/consumo, ativo ou não contribuinte): o IPI entra na base do ICMS", zfmL: "Produto com industrialização incentivada na ZFM: o IPI continua sendo cobrado a partir de 2027",
+    products: "Produtos", productsSub: "Valores unitários em R$ (total = quantidade × valor unitário), alíquotas em %. Deixe a venda em branco para usar o markup. As cClassTrib vinculadas ao NCM aparecem primeiro.", add: "Adicionar produto", tpl: "Baixar modelo Excel", imp: "Importar Excel", toastImp: "{n} produtos importados.", toastImpWarn: "{n} produtos importados. {w} cClassTrib não encontrada(s) foram trocadas por 000001: confira a coluna cClassTrib.", toastImpErr: "Não foi possível ler a planilha. Use o modelo Excel da calculadora.", toastImpEmpty: "Nenhum produto encontrado na planilha.", toastXlsxErr: "Não foi possível carregar o leitor de Excel. Verifique a conexão.",
+    desc: "Descrição", qty: "Qtd", buy: "Valor unit. compra", sell: "Valor unit. venda", ativ: "Atividade SN", ativT: "Usado só no Simples Nacional. Indica em qual anexo da LC 123 entra a receita do item, o que define a alíquota de CBS/IBS dentro do Simples (pCBSSN/pIBSSN). 01 = revenda de mercadorias ou venda de mercadorias industrializadas pelo contribuinte (Anexo I), o caso mais comum para produtos. 03 = venda de mercadorias com industrialização incentivada na ZFM (Anexo II). Os demais códigos são para serviços. Códigos da tabela oficial da Receita Federal.", remove: "Remover", seletivo: "Sujeito ao Imposto Seletivo", cfH: "Cons. final", zfmH: "IPI 2027+ (ZFM)", cfL: "Venda para consumidor final (uso/consumo, ativo ou não contribuinte): o IPI entra na base do ICMS", zfmL: "Produto com industrialização incentivada na ZFM: o IPI continua sendo cobrado a partir de 2027",
     grpNcm: "Vinculadas ao NCM", grpAll: "Todas as cClassTrib vigentes", ncmWarn: "NCM não vinculado a esta cClassTrib na tabela oficial (REG-011)",
     detail: "Memória de cálculo por produto", tabIn: "Entradas", tabOut: "Saídas", howTitle: "Como o cálculo é feito",
     aCur: "Sistema atual", bRef: "Reforma em {ano}", aSN: "Dentro do Simples Nacional", bRR: "IBS/CBS por fora (regime regular)",
@@ -280,7 +280,7 @@ const I18N = {
     sSell: "Venda bruta", sDeb: "Débitos ICMS/IPI/PIS/COFINS", sNet: "Venda líquida", sTot: "Venda total (reforma)", sDebR: "Débitos na reforma",
     rbsn: "Receita bruta (Simples)", snDue: "IBS/CBS devidos no Simples", rrDeb: "Débitos IBS/CBS por fora", rrCred: "Créditos IBS/CBS por fora",
     cDeb: "Débitos", cCred: "Créditos", cRes: "Resultado",
-    product: "Produto", colVal: "Valor", colBase: "Base IBS/CBS", colRed: "Red. %", colTot: "Total reforma", colDif: "Diferença", now: "atual", ref: "reforma", total: "Total",
+    product: "Produto", colVal: "Valor total", colBase: "Base IBS/CBS", colRed: "Red. %", colTot: "Total reforma", colDif: "Diferença", now: "atual", ref: "reforma", total: "Total",
     colRb: "Receita bruta", colTp: "tpRBSN", colAnexo: "Anexo", colDue: "Devido", colPend: "Pendente",
     toastRestore: "Exemplo restaurado", toastClear: "Produtos removidos. Use Adicionar produto.", toastCsv: "CSV copiado. Cole no Excel.", toastCsvErr: "Não foi possível copiar. Verifique a permissão da área de transferência.",
     share: "Compartilhar link", toastShare: "Link copiado. Quem abrir verá a simulação exatamente como está na tela.", toastShared: "Simulação compartilhada carregada.", toastShareErr: "Não foi possível gerar o link.", sharePrompt: "Copie o link da simulação:",
@@ -320,8 +320,8 @@ const I18N = {
     anexo: "Annex", exampleRates: "example values; use the effective rates from your PGDAS-D",
     inTitle: "Inbound (purchases)", outTitle: "Outbound (sales)",
     chA: "Tax assessment for the period", chT: "Taxes on sales by type",
-    products: "Products", productsSub: "Values in BRL (R$), rates in %. Leave the sales value blank to use the markup. cClassTrib codes linked to the NCM are listed first.", add: "Add product", tpl: "Download Excel template", imp: "Import Excel", toastImp: "{n} products imported.", toastImpWarn: "{n} products imported. {w} unknown cClassTrib code(s) were replaced with 000001: check the cClassTrib column.", toastImpErr: "Could not read the spreadsheet. Use the calculator's Excel template.", toastImpEmpty: "No products found in the spreadsheet.", toastXlsxErr: "Could not load the Excel reader. Check your connection.",
-    desc: "Description", qty: "Qty", buy: "Purchase value", sell: "Sales value", ativ: "SN activity", ativT: "Used only under the Simples Nacional. Sets which annex of LC 123 the item's revenue falls under, which defines the CBS/IBS rate inside Simples (pCBSSN/pIBSSN). 01 = resale of goods or sale of goods manufactured by the taxpayer (Annex I), the most common case for products. 03 = sale of goods with incentivized industrialization in the Manaus Free Trade Zone (Annex II). The other codes are for services. Codes from the Receita Federal's official table.", remove: "Remove", seletivo: "Subject to the Selective Tax", cfH: "Final consumer", zfmH: "IPI 2027+ (ZFM)", cfL: "Sale to a final consumer (use/consumption, fixed asset or non-taxpayer): IPI is included in the ICMS base", zfmL: "Product with incentivized industrialization in the Manaus Free Trade Zone: IPI is still charged from 2027",
+    products: "Products", productsSub: "Unit values in BRL (R$) (total = quantity × unit value), rates in %. Leave the sales value blank to use the markup. cClassTrib codes linked to the NCM are listed first.", add: "Add product", tpl: "Download Excel template", imp: "Import Excel", toastImp: "{n} products imported.", toastImpWarn: "{n} products imported. {w} unknown cClassTrib code(s) were replaced with 000001: check the cClassTrib column.", toastImpErr: "Could not read the spreadsheet. Use the calculator's Excel template.", toastImpEmpty: "No products found in the spreadsheet.", toastXlsxErr: "Could not load the Excel reader. Check your connection.",
+    desc: "Description", qty: "Qty", buy: "Unit purchase value", sell: "Unit sales value", ativ: "SN activity", ativT: "Used only under the Simples Nacional. Sets which annex of LC 123 the item's revenue falls under, which defines the CBS/IBS rate inside Simples (pCBSSN/pIBSSN). 01 = resale of goods or sale of goods manufactured by the taxpayer (Annex I), the most common case for products. 03 = sale of goods with incentivized industrialization in the Manaus Free Trade Zone (Annex II). The other codes are for services. Codes from the Receita Federal's official table.", remove: "Remove", seletivo: "Subject to the Selective Tax", cfH: "Final consumer", zfmH: "IPI 2027+ (ZFM)", cfL: "Sale to a final consumer (use/consumption, fixed asset or non-taxpayer): IPI is included in the ICMS base", zfmL: "Product with incentivized industrialization in the Manaus Free Trade Zone: IPI is still charged from 2027",
     grpNcm: "Linked to the NCM", grpAll: "All cClassTrib in force", ncmWarn: "NCM not linked to this cClassTrib in the official table (REG-011)",
     detail: "Calculation detail by product", tabIn: "Inbound", tabOut: "Outbound", howTitle: "How it calculates",
     aCur: "Current system", bRef: "Tax Reform in {ano}", aSN: "Within the Simples Nacional", bRR: "IBS/CBS outside Simples (regular regime)",
@@ -337,7 +337,7 @@ const I18N = {
     sSell: "Gross sales", sDeb: "ICMS/IPI/PIS/COFINS debits", sNet: "Net sales", sTot: "Total sales (reform)", sDebR: "Reform debits",
     rbsn: "Gross revenue (Simples)", snDue: "IBS/CBS due within Simples", rrDeb: "IBS/CBS debits outside Simples", rrCred: "IBS/CBS credits outside Simples",
     cDeb: "Debits", cCred: "Credits", cRes: "Net tax",
-    product: "Product", colVal: "Value", colBase: "IBS/CBS base", colRed: "Red. %", colTot: "Reform total", colDif: "Difference", now: "current", ref: "reform", total: "Total",
+    product: "Product", colVal: "Total value", colBase: "IBS/CBS base", colRed: "Red. %", colTot: "Reform total", colDif: "Difference", now: "current", ref: "reform", total: "Total",
     colRb: "Gross revenue", colTp: "tpRBSN", colAnexo: "Annex", colDue: "Due", colPend: "Pending",
     toastRestore: "Example restored", toastClear: "Products cleared. Use Add product.", toastCsv: "CSV copied. Paste it into Excel.", toastCsvErr: "Could not copy. Check the clipboard permission.",
     share: "Share link", toastShare: "Link copied. Anyone who opens it sees this simulation exactly as on screen.", toastShared: "Shared simulation loaded.", toastShareErr: "Could not create the link.", sharePrompt: "Copy the simulation link:",
@@ -478,7 +478,7 @@ const DEMO = [
   ["Leite UHT integral 1L", "04012010", 15000, 63000, 7, 0, 0, "200003", false],
   ["Detergente líquido 500ml", "34025000", 8200, 18860, 17, PIS, COF, "000001", false],
 ].map(([descricao, ncm, qtd, compra, icms, pis, cofins, cct, seletivo]) =>
-  ({ descricao, ncm, qtd, compra, venda: null, icms, pis, cofins, ipi: 0, cct, seletivo, cf: false, zfm: false, ativ: "01" }));
+  ({ descricao, ncm, qtd, compra: round2(compra / qtd), venda: null, icms, pis, cofins, ipi: 0, cct, seletivo, cf: false, zfm: false, ativ: "01" }));
 const DEF_PARAMS = () => ({ regime: "rr", ano: 2027, rates: {}, is: 0, markup: 1.32, snReg: "SN_PLENO", fatorR: false, exclIcms: true, stat: true, icmsIbs: true, keepPrice: false, sn: JSON.parse(JSON.stringify(DEF_SN)) });
 
 const KEY = "calc-reforma-rfb-v2";
@@ -498,9 +498,7 @@ function ratesFor(y) {
 }
 
 function calcRR(it, y, tipo) {
-  const vt = tipo === "saida"
-    ? (it.venda === null || it.venda === undefined || it.venda === "" ? round2(it.compra * params.markup) : Number(it.venda))
-    : Number(it.compra) || 0;
+  const vt = tipo === "saida" ? saleTotal(it) : buyTotal(it);
   // IPI is charged on top of the product value. On a sale to a final consumer (use/consumption, fixed asset or non-taxpayer)
   // IPI is part of the ICMS base (CF art. 155, par. 2, XI; LC 87/96 art. 13, par. 2).
   const ipiRate = (Number(it.ipi) || 0) / 100, cfSale = tipo === "saida" && !!it.cf;
@@ -567,8 +565,13 @@ function calcRR(it, y, tipo) {
 }
 
 function snRegime(y) { return (DATA.simples.regimes || []).find((r) => r.cd === params.snReg && vig(r, dateOf(y))) || null; }
+// Purchase and sales values are unit values; the item total is quantity x unit value.
+function qtyOf(it) { return Number(it.qtd) || 0; }
+function unitSale(it) { return it.venda === null || it.venda === undefined || it.venda === "" ? round2((Number(it.compra) || 0) * params.markup) : Number(it.venda); }
+function saleTotal(it) { return round2(qtyOf(it) * unitSale(it)); }
+function buyTotal(it) { return round2(qtyOf(it) * (Number(it.compra) || 0)); }
 function calcSN(it, y) {
-  const vt = it.venda === null || it.venda === undefined || it.venda === "" ? round2(it.compra * params.markup) : Number(it.venda);
+  const vt = saleTotal(it);
   const dt = dateOf(y), ct = classesFor(y).get(it.cct) || classesFor(y).get("000001");
   const reg = snRegime(y);
   const tp = (DATA.simples.tiposReceita || []).find((t) => t.cd === (ct ? ct.tpRBSN : 1) && vig(t, dt)) || { cd: 1, compoe: 1, fator: 1, pend: 0 };
@@ -751,7 +754,7 @@ $("editor").addEventListener("click", (e) => {
   items.splice(+e.target.closest("tr").dataset.i, 1); renderEditor(); refresh();
 });
 $("btnAdd").addEventListener("click", () => {
-  items.push({ descricao: "", ncm: "", qtd: 0, compra: 0, venda: null, icms: 17, pis: PIS, cofins: COF, ipi: 0, cct: "000001", seletivo: false, cf: false, zfm: false, ativ: "01" });
+  items.push({ descricao: "", ncm: "", qtd: 1, compra: 0, venda: null, icms: 17, pis: PIS, cofins: COF, ipi: 0, cct: "000001", seletivo: false, cf: false, zfm: false, ativ: "01" });
   renderEditor(); refresh();
   const rows = $("editor").tBodies[0].rows; rows[rows.length - 1].querySelector("input").focus();
 });
@@ -896,14 +899,14 @@ const b64u = {
 };
 const pipeBytes = async (bytes, stream) => new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(stream)).arrayBuffer());
 async function packState() {
-  const json = new TextEncoder().encode(JSON.stringify({ v: 1, items, params }));
+  const json = new TextEncoder().encode(JSON.stringify({ v: 2, items, params }));
   if (typeof CompressionStream === "function") return "z=" + b64u.enc(await pipeBytes(json, new CompressionStream("deflate-raw")));
   return "j=" + b64u.enc(json);
 }
 const num = (v, d = 0) => (v === null || v === "" || v === undefined ? d : Number.isFinite(Number(v)) ? Number(v) : d);
 const str = (v, max = 120) => String(v ?? "").slice(0, max);
 function cleanShared(o) {
-  if (!o || o.v !== 1 || !Array.isArray(o.items)) return null;
+  if (!o || (o.v !== 1 && o.v !== 2) || !Array.isArray(o.items)) return null;
   const its = o.items.slice(0, 500).map((it) => ({
     descricao: str(it.descricao), ncm: str(it.ncm, 10).replace(/\D/g, ""), qtd: num(it.qtd), compra: num(it.compra),
     venda: it.venda === null || it.venda === "" || it.venda === undefined ? null : num(it.venda),
@@ -950,8 +953,8 @@ const XCOLS = [
   ["descricao", ["descricao", "description"]],
   ["ncm", ["ncm"]],
   ["qtd", ["qtd", "quantidade", "qty", "quantity"]],
-  ["compra", ["valor compra", "valor de compra", "purchase value", "compra"]],
-  ["venda", ["valor venda", "valor de venda", "sales value", "venda"]],
+  ["compra", ["valor unitario compra", "valor unit. compra", "valor compra", "valor de compra", "unit purchase value", "purchase value", "compra"]],
+  ["venda", ["valor unitario venda", "valor unit. venda", "valor venda", "valor de venda", "unit sales value", "sales value", "venda"]],
   ["icms", ["icms %", "icms"]],
   ["pis", ["pis %", "pis"]],
   ["cofins", ["cofins %", "cofins"]],
@@ -964,10 +967,10 @@ const XCOLS = [
 ];
 const normH = (h) => String(h ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
 const TPL = {
-  pt: { heads: ["Descrição", "NCM", "Qtd", "Valor compra", "Valor venda", "ICMS %", "PIS %", "COFINS %", "IPI %", "cClassTrib", "IS (S/N)", "Consumidor final (S/N)", "IPI 2027+ ZFM (S/N)", "Atividade SN"], yes: "N", sheet: "Produtos", help: "Instruções", file: "modelo-produtos-calculadora-reforma.xlsx",
-    rows: [["Coluna", "Como preencher"], ["Descrição", "Nome do produto (texto livre)."], ["NCM", "8 dígitos, só números. A coluna está como texto para manter zeros à esquerda."], ["Qtd", "Quantidade no período."], ["Valor compra", "Valor total de compra em R$, com ICMS, PIS e COFINS embutidos. Use 0 se não houver compra."], ["Valor venda", "Valor total de venda em R$, como na NF-e de hoje: com ICMS, PIS e COFINS embutidos e sem IPI. Deixe em branco para usar o markup."], ["ICMS %, PIS %, COFINS %, IPI %", "Alíquotas atuais em %, por exemplo 18, 1,65, 7,6 e 10. IPI em branco = 0."], ["cClassTrib", "Código de 6 dígitos da tabela oficial. Em branco = 000001."], ["IS (S/N)", "S se o produto está sujeito ao Imposto Seletivo; N ou em branco se não."], ["Consumidor final (S/N)", "S se a venda é para consumidor final (uso/consumo, ativo imobilizado ou não contribuinte): o IPI entra na base do ICMS."], ["IPI 2027+ ZFM (S/N)", "S se o produto tem industrialização incentivada na Zona Franca de Manaus e mantém o IPI a partir de 2027. Para os demais, o IPI vai a zero em 2027."], ["Atividade SN", "Só para o Simples Nacional: código da atividade (padrão 01)."], ["", ""], ["Importação", "A importação substitui os produtos que estão na tela. A linha de exemplo pode ser apagada ou sobrescrita."]] },
-  en: { heads: ["Description", "NCM", "Qty", "Purchase value", "Sales value", "ICMS %", "PIS %", "COFINS %", "IPI %", "cClassTrib", "IS (Y/N)", "Final consumer (Y/N)", "IPI 2027+ ZFM (Y/N)", "SN activity"], yes: "N", sheet: "Products", help: "Instructions", file: "tax-reform-calculator-products-template.xlsx",
-    rows: [["Column", "How to fill it in"], ["Description", "Product name (free text)."], ["NCM", "8 digits, numbers only. The column is formatted as text to keep leading zeros."], ["Qty", "Quantity in the period."], ["Purchase value", "Total purchase value in BRL, with ICMS, PIS and COFINS embedded. Use 0 if there is no purchase."], ["Sales value", "Total sales value in BRL, as on today's NF-e: with ICMS, PIS and COFINS embedded and without IPI. Leave blank to use the markup."], ["ICMS %, PIS %, COFINS %, IPI %", "Current rates in %, for example 18, 1.65, 7.6 and 10. Blank IPI = 0."], ["cClassTrib", "6-digit code from the official table. Blank = 000001."], ["IS (Y/N)", "Y if the product is subject to the Selective Tax; N or blank if not."], ["Final consumer (Y/N)", "Y if the sale is to a final consumer (use/consumption, fixed asset or non-taxpayer): IPI is included in the ICMS base."], ["IPI 2027+ ZFM (Y/N)", "Y if the product has incentivized industrialization in the Manaus Free Trade Zone and keeps IPI from 2027. For all other products IPI goes to zero in 2027."], ["SN activity", "Simples Nacional only: activity code (default 01)."], ["", ""], ["Import", "Importing replaces the products on screen. The example row can be deleted or overwritten."]] },
+  pt: { heads: ["Descrição", "NCM", "Qtd", "Valor unitário compra", "Valor unitário venda", "ICMS %", "PIS %", "COFINS %", "IPI %", "cClassTrib", "IS (S/N)", "Consumidor final (S/N)", "IPI 2027+ ZFM (S/N)", "Atividade SN"], yes: "N", sheet: "Produtos", help: "Instruções", file: "modelo-produtos-calculadora-reforma.xlsx",
+    rows: [["Coluna", "Como preencher"], ["Descrição", "Nome do produto (texto livre)."], ["NCM", "8 dígitos, só números. A coluna está como texto para manter zeros à esquerda."], ["Qtd", "Quantidade no período."], ["Valor unitário compra", "Valor unitário de compra em R$, com ICMS, PIS e COFINS embutidos. O total é Qtd × valor unitário. Use 0 se não houver compra."], ["Valor unitário venda", "Valor unitário de venda em R$, como na NF-e de hoje: com ICMS, PIS e COFINS embutidos e sem IPI. O total é Qtd × valor unitário. Deixe em branco para usar o markup."], ["ICMS %, PIS %, COFINS %, IPI %", "Alíquotas atuais em %, por exemplo 18, 1,65, 7,6 e 10. IPI em branco = 0."], ["cClassTrib", "Código de 6 dígitos da tabela oficial. Em branco = 000001."], ["IS (S/N)", "S se o produto está sujeito ao Imposto Seletivo; N ou em branco se não."], ["Consumidor final (S/N)", "S se a venda é para consumidor final (uso/consumo, ativo imobilizado ou não contribuinte): o IPI entra na base do ICMS."], ["IPI 2027+ ZFM (S/N)", "S se o produto tem industrialização incentivada na Zona Franca de Manaus e mantém o IPI a partir de 2027. Para os demais, o IPI vai a zero em 2027."], ["Atividade SN", "Só para o Simples Nacional: código da atividade (padrão 01)."], ["", ""], ["Importação", "A importação substitui os produtos que estão na tela. A linha de exemplo pode ser apagada ou sobrescrita."]] },
+  en: { heads: ["Description", "NCM", "Qty", "Unit purchase value", "Unit sales value", "ICMS %", "PIS %", "COFINS %", "IPI %", "cClassTrib", "IS (Y/N)", "Final consumer (Y/N)", "IPI 2027+ ZFM (Y/N)", "SN activity"], yes: "N", sheet: "Products", help: "Instructions", file: "tax-reform-calculator-products-template.xlsx",
+    rows: [["Column", "How to fill it in"], ["Description", "Product name (free text)."], ["NCM", "8 digits, numbers only. The column is formatted as text to keep leading zeros."], ["Qty", "Quantity in the period."], ["Unit purchase value", "Unit purchase value in BRL, with ICMS, PIS and COFINS embedded. The total is Qty × unit value. Use 0 if there is no purchase."], ["Unit sales value", "Unit sales value in BRL, as on today's NF-e: with ICMS, PIS and COFINS embedded and without IPI. The total is Qty × unit value. Leave blank to use the markup."], ["ICMS %, PIS %, COFINS %, IPI %", "Current rates in %, for example 18, 1.65, 7.6 and 10. Blank IPI = 0."], ["cClassTrib", "6-digit code from the official table. Blank = 000001."], ["IS (Y/N)", "Y if the product is subject to the Selective Tax; N or blank if not."], ["Final consumer (Y/N)", "Y if the sale is to a final consumer (use/consumption, fixed asset or non-taxpayer): IPI is included in the ICMS base."], ["IPI 2027+ ZFM (Y/N)", "Y if the product has incentivized industrialization in the Manaus Free Trade Zone and keeps IPI from 2027. For all other products IPI goes to zero in 2027."], ["SN activity", "Simples Nacional only: activity code (default 01)."], ["", ""], ["Import", "Importing replaces the products on screen. The example row can be deleted or overwritten."]] },
 };
 $("btnTpl").addEventListener("click", async () => {
   let X; try { X = await loadXlsx(); } catch (e) { toast(T("toastXlsxErr")); return; }
@@ -1027,7 +1030,7 @@ $("fileImp").addEventListener("change", async (ev) => {
       const isv = normH(cellStr(g("seletivo")));
       const pct = (k, d) => { const v = cellNum(g(k)); return v === null ? (map[k] === undefined ? d : 0) : v; };
       const ativ = cellStr(g("ativ")).replace(/[^A-Za-z0-9]/g, "").slice(0, 4);
-      out.push({ descricao: desc, ncm: ncm.slice(0, 8), qtd: qtd ?? 0, compra: compra ?? 0, venda: venda,
+      out.push({ descricao: desc, ncm: ncm.slice(0, 8), qtd: qtd ?? 1, compra: compra ?? 0, venda: venda,
         icms: pct("icms", 17), pis: pct("pis", PIS), cofins: pct("cofins", COF), ipi: pct("ipi", 0), cct,
         seletivo: YES.includes(isv), cf: yes("cf"), zfm: yes("zfm"), ativ: ativ ? ativ.padStart(2, "0") : "01" });
     }
