@@ -208,7 +208,12 @@ body.mode-sn .sn-only { display: table-cell; }
   <section class="panel" aria-label="Produtos">
     <div class="sechead">
       <div><h2 data-i18n="products">Produtos</h2><span class="muted" data-i18n="productsSub">Valores em R$, alíquotas em %. Deixe a venda em branco para usar o markup. As cClassTrib vinculadas ao NCM aparecem primeiro.</span></div>
-      <button type="button" id="btnAdd" class="primary" data-i18n="add">Adicionar produto</button>
+      <div class="btns">
+        <button type="button" id="btnTpl" data-i18n="tpl">Baixar modelo Excel</button>
+        <button type="button" id="btnImp" data-i18n="imp">Importar Excel</button>
+        <input type="file" id="fileImp" accept=".xlsx,.xls,.csv" hidden>
+        <button type="button" id="btnAdd" class="primary" data-i18n="add">Adicionar produto</button>
+      </div>
     </div>
     <div class="tablewrap">
       <table id="editor">
@@ -255,7 +260,7 @@ const I18N = {
     anexo: "Anexo", exampleRates: "valores de exemplo; use as alíquotas efetivas do seu PGDAS-D",
     inTitle: "Entradas (compras)", outTitle: "Saídas (vendas)",
     chA: "Apuração do período", chT: "Tributos por espécie nas saídas",
-    products: "Produtos", productsSub: "Valores em R$, alíquotas em %. Deixe a venda em branco para usar o markup. As cClassTrib vinculadas ao NCM aparecem primeiro.", add: "Adicionar produto",
+    products: "Produtos", productsSub: "Valores em R$, alíquotas em %. Deixe a venda em branco para usar o markup. As cClassTrib vinculadas ao NCM aparecem primeiro.", add: "Adicionar produto", tpl: "Baixar modelo Excel", imp: "Importar Excel", toastImp: "{n} produtos importados.", toastImpWarn: "{n} produtos importados. {w} cClassTrib não encontrada(s) foram trocadas por 000001: confira a coluna cClassTrib.", toastImpErr: "Não foi possível ler a planilha. Use o modelo Excel da calculadora.", toastImpEmpty: "Nenhum produto encontrado na planilha.", toastXlsxErr: "Não foi possível carregar o leitor de Excel. Verifique a conexão.",
     desc: "Descrição", qty: "Qtd", buy: "Valor compra", sell: "Valor venda", ativ: "Atividade SN", remove: "Remover", seletivo: "Sujeito ao Imposto Seletivo",
     grpNcm: "Vinculadas ao NCM", grpAll: "Todas as cClassTrib vigentes", ncmWarn: "NCM não vinculado a esta cClassTrib na tabela oficial (REG-011)",
     detail: "Memória de cálculo por produto", tabIn: "Entradas", tabOut: "Saídas", howTitle: "Como o cálculo é feito",
@@ -311,7 +316,7 @@ const I18N = {
     anexo: "Annex", exampleRates: "example values; use the effective rates from your PGDAS-D",
     inTitle: "Inbound (purchases)", outTitle: "Outbound (sales)",
     chA: "Tax assessment for the period", chT: "Taxes on sales by type",
-    products: "Products", productsSub: "Values in BRL (R$), rates in %. Leave the sales value blank to use the markup. cClassTrib codes linked to the NCM are listed first.", add: "Add product",
+    products: "Products", productsSub: "Values in BRL (R$), rates in %. Leave the sales value blank to use the markup. cClassTrib codes linked to the NCM are listed first.", add: "Add product", tpl: "Download Excel template", imp: "Import Excel", toastImp: "{n} products imported.", toastImpWarn: "{n} products imported. {w} unknown cClassTrib code(s) were replaced with 000001: check the cClassTrib column.", toastImpErr: "Could not read the spreadsheet. Use the calculator's Excel template.", toastImpEmpty: "No products found in the spreadsheet.", toastXlsxErr: "Could not load the Excel reader. Check your connection.",
     desc: "Description", qty: "Qty", buy: "Purchase value", sell: "Sales value", ativ: "SN activity", remove: "Remove", seletivo: "Subject to the Selective Tax",
     grpNcm: "Linked to the NCM", grpAll: "All cClassTrib in force", ncmWarn: "NCM not linked to this cClassTrib in the official table (REG-011)",
     detail: "Calculation detail by product", tabIn: "Inbound", tabOut: "Outbound", howTitle: "How it calculates",
@@ -889,6 +894,103 @@ $("btnShare").addEventListener("click", async () => {
   catch (e) { toast(T("toastShareErr")); return; }
   try { await navigator.clipboard.writeText(url); toast(T("toastShare")); }
   catch (e) { window.prompt(T("sharePrompt"), url); }
+});
+// Excel template and import (SheetJS loaded on demand, only when one of the two buttons is used).
+const XLSX_SRC = "https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js";
+let xlsxP = null;
+function loadXlsx() {
+  if (window.XLSX) return Promise.resolve(window.XLSX);
+  return (xlsxP ||= new Promise((ok, ko) => {
+    const sc = document.createElement("script"); sc.src = XLSX_SRC; sc.async = true;
+    sc.onload = () => (window.XLSX ? ok(window.XLSX) : ko(new Error("xlsx"))); sc.onerror = () => { xlsxP = null; ko(new Error("xlsx")); };
+    document.head.appendChild(sc);
+  }));
+}
+// Column keys, with the header text accepted for each (Portuguese and English, accents and case ignored).
+const XCOLS = [
+  ["descricao", ["descricao", "description"]],
+  ["ncm", ["ncm"]],
+  ["qtd", ["qtd", "quantidade", "qty", "quantity"]],
+  ["compra", ["valor compra", "valor de compra", "purchase value", "compra"]],
+  ["venda", ["valor venda", "valor de venda", "sales value", "venda"]],
+  ["icms", ["icms %", "icms"]],
+  ["pis", ["pis %", "pis"]],
+  ["cofins", ["cofins %", "cofins"]],
+  ["cct", ["cclasstrib"]],
+  ["seletivo", ["is", "imposto seletivo", "selective tax", "is (s/n)", "is (y/n)"]],
+  ["ativ", ["atividade sn", "sn activity", "atividade"]],
+];
+const normH = (h) => String(h ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
+const TPL = {
+  pt: { heads: ["Descrição", "NCM", "Qtd", "Valor compra", "Valor venda", "ICMS %", "PIS %", "COFINS %", "cClassTrib", "IS (S/N)", "Atividade SN"], yes: "N", sheet: "Produtos", help: "Instruções", file: "modelo-produtos-calculadora-reforma.xlsx",
+    rows: [["Coluna", "Como preencher"], ["Descrição", "Nome do produto (texto livre)."], ["NCM", "8 dígitos, só números. A coluna está como texto para manter zeros à esquerda."], ["Qtd", "Quantidade no período."], ["Valor compra", "Valor total de compra em R$, com ICMS, PIS e COFINS embutidos. Use 0 se não houver compra."], ["Valor venda", "Valor total de venda em R$, como na NF-e de hoje: com ICMS, PIS e COFINS embutidos e sem IPI. Deixe em branco para usar o markup."], ["ICMS %, PIS %, COFINS %", "Alíquotas atuais em %, por exemplo 18, 1,65 e 7,6."], ["cClassTrib", "Código de 6 dígitos da tabela oficial. Em branco = 000001."], ["IS (S/N)", "S se o produto está sujeito ao Imposto Seletivo; N ou em branco se não."], ["Atividade SN", "Só para o Simples Nacional: código da atividade (padrão 01)."], ["", ""], ["Importação", "A importação substitui os produtos que estão na tela. A linha de exemplo pode ser apagada ou sobrescrita."]] },
+  en: { heads: ["Description", "NCM", "Qty", "Purchase value", "Sales value", "ICMS %", "PIS %", "COFINS %", "cClassTrib", "IS (Y/N)", "SN activity"], yes: "N", sheet: "Products", help: "Instructions", file: "tax-reform-calculator-products-template.xlsx",
+    rows: [["Column", "How to fill it in"], ["Description", "Product name (free text)."], ["NCM", "8 digits, numbers only. The column is formatted as text to keep leading zeros."], ["Qty", "Quantity in the period."], ["Purchase value", "Total purchase value in BRL, with ICMS, PIS and COFINS embedded. Use 0 if there is no purchase."], ["Sales value", "Total sales value in BRL, as on today's NF-e: with ICMS, PIS and COFINS embedded and without IPI. Leave blank to use the markup."], ["ICMS %, PIS %, COFINS %", "Current rates in %, for example 18, 1.65 and 7.6."], ["cClassTrib", "6-digit code from the official table. Blank = 000001."], ["IS (Y/N)", "Y if the product is subject to the Selective Tax; N or blank if not."], ["SN activity", "Simples Nacional only: activity code (default 01)."], ["", ""], ["Import", "Importing replaces the products on screen. The example row can be deleted or overwritten."]] },
+};
+$("btnTpl").addEventListener("click", async () => {
+  let X; try { X = await loadXlsx(); } catch (e) { toast(T("toastXlsxErr")); return; }
+  const t = TPL[lang === "en" ? "en" : "pt"];
+  const ex = [lang === "en" ? "Liquid detergent 500ml" : "Detergente líquido 500ml", "34025000", 1, 0, 1070.68, 18, 1.65, 7.6, "000001", t.yes, "01"];
+  const ws = X.utils.aoa_to_sheet([t.heads, ex]);
+  for (const col of ["B", "I", "K"]) for (let r = 1; r <= 1000; r++) { const a = col + r; if (!ws[a]) ws[a] = { t: "s", v: "" }; ws[a].z = "@"; }
+  ws["!ref"] = "A1:K1000";
+  ws["!cols"] = [{ wch: 34 }, { wch: 11 }, { wch: 8 }, { wch: 14 }, { wch: 14 }, { wch: 9 }, { wch: 8 }, { wch: 11 }, { wch: 12 }, { wch: 10 }, { wch: 13 }];
+  const wh = X.utils.aoa_to_sheet(t.rows); wh["!cols"] = [{ wch: 24 }, { wch: 110 }];
+  const wb = X.utils.book_new(); X.utils.book_append_sheet(wb, ws, t.sheet); X.utils.book_append_sheet(wb, wh, t.help);
+  X.writeFile(wb, t.file);
+});
+function cellNum(c) {
+  if (!c || c.v === undefined || c.v === null || c.v === "") return null;
+  if (c.t === "n") return /%/.test(c.z || "") ? c.v * 100 : c.v;
+  let v = String(c.v).trim().replace(/R\$|\s|%/g, "");
+  if (v === "") return null;
+  const lc = v.lastIndexOf(","), ld = v.lastIndexOf(".");
+  if (lc >= 0 && ld >= 0) v = lc > ld ? v.replace(/\./g, "").replace(",", ".") : v.replace(/,/g, "");
+  else if (lc >= 0) v = v.replace(/,/g, ".");
+  const n = Number(v); return Number.isFinite(n) ? n : null;
+}
+const cellStr = (c) => (c && c.v !== undefined && c.v !== null ? String(c.w !== undefined && c.t === "s" ? c.v : c.v).trim() : "");
+$("btnImp").addEventListener("click", () => { $("fileImp").value = ""; $("fileImp").click(); });
+$("fileImp").addEventListener("change", async (ev) => {
+  const f = ev.target.files && ev.target.files[0]; if (!f) return;
+  let X; try { X = await loadXlsx(); } catch (e) { toast(T("toastXlsxErr")); return; }
+  try {
+    const isCsv = /\.csv$/i.test(f.name);
+    const wb = isCsv ? X.read(await f.text(), { type: "string", raw: true }) : X.read(await f.arrayBuffer(), { type: "array", cellNF: true, cellText: false });
+    const ws = wb.Sheets[wb.SheetNames[0]]; if (!ws || !ws["!ref"]) throw new Error("empty");
+    const rg = X.utils.decode_range(ws["!ref"]);
+    const at = (r, c) => ws[X.utils.encode_cell({ r, c })];
+    // Find the header row (first row within the top 10 that names at least 3 known columns).
+    let hr = -1, map = {};
+    for (let r = rg.s.r; r <= Math.min(rg.e.r, rg.s.r + 9) && hr < 0; r++) {
+      const m = {};
+      for (let c = rg.s.c; c <= rg.e.c; c++) { const h = normH(cellStr(at(r, c))); const k = XCOLS.find(([, names]) => names.includes(h)); if (k && m[k[0]] === undefined) m[k[0]] = c; }
+      if (Object.keys(m).length >= 3) { hr = r; map = m; }
+    }
+    if (hr < 0) throw new Error("header");
+    const known = new Set(DATA.cClassTrib.map((c) => c.cd));
+    const out = []; let warn = 0;
+    for (let r = hr + 1; r <= rg.e.r && out.length < 500; r++) {
+      const g = (k) => (map[k] === undefined ? undefined : at(r, map[k]));
+      const desc = cellStr(g("descricao")).slice(0, 120);
+      let ncm = cellStr(g("ncm")).replace(/\D/g, "");
+      const qtd = cellNum(g("qtd")), compra = cellNum(g("compra")), venda = cellNum(g("venda"));
+      if (!desc && !ncm && qtd === null && compra === null && venda === null) continue;
+      if (ncm && ncm.length < 8) ncm = ncm.padStart(8, "0");
+      let cct = cellStr(g("cct")).replace(/\D/g, "");
+      cct = cct ? cct.padStart(6, "0") : "000001";
+      if (!known.has(cct)) { warn++; cct = "000001"; }
+      const isv = normH(cellStr(g("seletivo")));
+      const pct = (k, d) => { const v = cellNum(g(k)); return v === null ? (map[k] === undefined ? d : 0) : v; };
+      const ativ = cellStr(g("ativ")).replace(/[^A-Za-z0-9]/g, "").slice(0, 4);
+      out.push({ descricao: desc, ncm: ncm.slice(0, 8), qtd: qtd ?? 0, compra: compra ?? 0, venda: venda,
+        icms: pct("icms", 17), pis: pct("pis", PIS), cofins: pct("cofins", COF), cct,
+        seletivo: ["s", "sim", "y", "yes", "x", "1", "true", "verdadeiro"].includes(isv), ativ: ativ ? ativ.padStart(2, "0") : "01" });
+    }
+    if (!out.length) { toast(T("toastImpEmpty")); return; }
+    items = out; renderEditor(); refresh();
+    toast(warn ? F("toastImpWarn", { n: out.length, w: warn }) : F("toastImp", { n: out.length }));
+  } catch (e) { toast(T("toastImpErr")); }
 });
 let tt; function toast(m) { const el = $("toast"); el.textContent = m; el.classList.add("show"); clearTimeout(tt); tt = setTimeout(() => el.classList.remove("show"), 2600); }
 
