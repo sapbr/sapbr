@@ -118,6 +118,10 @@ tfoot td { font-weight: 700; border-top: 2px solid var(--line); border-bottom: 0
 .snpanel[hidden] { display: none; }
 .snrow { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: end; }
 .anexos td input { width: 92px; }
+.flags { gap: 6px; }
+.chk { display: flex; gap: 6px; align-items: center; font-size: 12px; font-weight: 600; color: var(--muted); cursor: pointer; }
+.chk.off { opacity: .5; cursor: default; }
+.field .chk input { width: auto; margin: 0; }
 .model { font-size: 13px; color: var(--muted); }
 .model ul { margin: 6px 0 0; padding-left: 18px; }
 .model a { color: var(--accent); }
@@ -156,6 +160,10 @@ body.mode-sn .sn-only { display: table-cell; }
     <div class="field"><label for="pIbsMun"><span data-i18n="ibsMun">IBS Mun. (%)</span> <span class="badge" id="bOf3" hidden>RFB</span></label><input id="pIbsMun" class="n" inputmode="decimal"></div>
     <div class="field"><label for="pIs" data-i18n="isLbl">IS ad valorem (%)</label><input id="pIs" class="n" inputmode="decimal"></div>
     <div class="field"><label for="pMk" data-i18n="markup">Markup de venda</label><input id="pMk" class="n" inputmode="decimal"></div>
+    <div class="field flags">
+      <label class="chk"><input type="checkbox" id="fExcl"> <span data-i18n="fExcl">Excluir ICMS da base do PIS/COFINS (Tema 69)</span></label>
+      <label class="chk" id="fStatWrap"><input type="checkbox" id="fStat"> <span data-i18n="fStat">CBS/IBS estatístico em 2026 (não soma ao total)</span></label>
+    </div>
   </section>
 
   <div class="notice" id="notice" role="status"></div>
@@ -266,9 +274,13 @@ const I18N = {
     nSNsub: "No regime de excesso de sublimite o IBS é recolhido pelo regime regular, fora do Simples, e não aparece no lado do Simples.",
     nIsZero: "Há produtos marcados com Imposto Seletivo, mas a alíquota de IS está em 0%. A base oficial lista os NCM sujeitos ao IS, mas não traz as alíquotas; informe a alíquota.",
     loadErr: "Não foi possível carregar os dados oficiais (data.json). Recarregue a página.",
+    fExcl: "Excluir ICMS da base do PIS/COFINS (Tema 69)", fStat: "CBS/IBS estatístico em 2026 (não soma ao total)", fStatOff: "Só se aplica a 2026",
+    nStat: "CBS e IBS de 2026 tratados como estatísticos: aparecem na memória de cálculo, mas não somam ao total da nota, aos débitos, aos créditos nem ao resultado (como o flag de imposto estatístico do SAP).",
+    nNoExcl: "PIS e COFINS calculados sobre o valor cheio, sem excluir o ICMS da base.",
     how: [
       "Tabelas e fórmulas da base oficial da Receita Federal: cClassTrib, CST, percentual de redução por tributo, vínculo NCM × cClassTrib, NCM sujeitos ao Imposto Seletivo e tabelas do Simples Nacional.",
       "Regime regular: base = valor − ICMS − PIS − COFINS + IS. Alíquota efetiva = alíquota × (1 − redução da cClassTrib), pela fórmula do tratamento tributário oficial. Tributo = base × alíquota efetiva, arredondado em 2 casas (meio para o par, como a API).",
+      "PIS/COFINS: sobre o valor sem o ICMS (Tema 69 do STF) quando a opção estiver ligada. Em 2026, com a opção de CBS/IBS estatístico ligada, os valores são destacados mas não somam ao total da nota nem ao resultado, como no SAP; a base de CBS/IBS segue a base unificada oficial (valor − ICMS − PIS − COFINS).",
       "Créditos: IBS/CBS das compras quando a cClassTrib permite apropriação pelo adquirente; o IS não gera crédito. Transição: PIS/COFINS só em 2026; ICMS integral até 2028 e reduzido a 90%, 80%, 70% e 60% de 2029 a 2032 (EC 132/2023).",
       "Simples Nacional: receita bruta do item × fator do tipo de receita (tpRBSN da cClassTrib) × alíquota efetiva do anexo da atividade. O destino devido ou pendente segue a tabela oficial de regimes. A comparação mostra o mesmo mix com IBS/CBS por fora, no regime regular.",
       "Fora do escopo: tributação monofásica de combustíveis, compras governamentais, diferimento parcial e regimes específicos. Simulação ilustrativa; não substitui a calculadora oficial nem parecer fiscal."
@@ -317,9 +329,13 @@ const I18N = {
     nSNsub: "Under the sublimit-exceeded regime, IBS is paid under the regular regime outside Simples and does not appear on the Simples side.",
     nIsZero: "Some products are flagged for the Selective Tax, but the IS rate is 0%. The official database lists the NCMs subject to IS but not the rates; enter the rate.",
     loadErr: "Could not load the official data (data.json). Reload the page.",
+    fExcl: "Exclude ICMS from the PIS/COFINS base (Tema 69)", fStat: "Statistical CBS/IBS in 2026 (not added to total)", fStatOff: "Applies to 2026 only",
+    nStat: "2026 CBS and IBS are treated as statistical: they show in the calculation detail but are not added to the invoice total, debits, credits or net tax (like SAP's statistical tax flag).",
+    nNoExcl: "PIS and COFINS are calculated on the full value, without excluding ICMS from the base.",
     how: [
       "Tables and formulas from the Receita Federal's official database: cClassTrib, CST, reduction percentage per tax, NCM × cClassTrib links, NCMs subject to the Selective Tax and the Simples Nacional tables.",
       "Regular regime: base = value − ICMS − PIS − COFINS + IS. Effective rate = rate × (1 − cClassTrib reduction), using the official tax treatment formula. Tax = base × effective rate, rounded to 2 decimals (half to even, like the API).",
+      "PIS/COFINS: on the value net of ICMS (Supreme Court Tema 69) when that option is on. In 2026, with the statistical CBS/IBS option on, the amounts are shown but not added to the invoice total or net tax, as in SAP; the CBS/IBS base follows the official unified base (value − ICMS − PIS − COFINS).",
       "Credits: IBS/CBS on purchases when the cClassTrib allows the buyer to take credit; IS is not creditable. Transition: PIS/COFINS only in 2026; ICMS in full through 2028 and reduced to 90%, 80%, 70% and 60% from 2029 to 2032 (Constitutional Amendment 132/2023).",
       "Simples Nacional: item gross revenue × revenue-type factor (tpRBSN of the cClassTrib) × effective rate of the activity's annex. Due or pending follows the official regime table. The comparison shows the same mix with IBS/CBS paid outside Simples, under the regular regime.",
       "Out of scope: single-phase fuel taxation, government purchases, partial deferral and special regimes. Illustrative simulation; not a substitute for the official calculator or for tax advice."
@@ -442,7 +458,7 @@ const DEMO = [
   ["Detergente líquido 500ml", "34025000", 8200, 18860, 17, PIS, COF, "000001", false],
 ].map(([descricao, ncm, qtd, compra, icms, pis, cofins, cct, seletivo]) =>
   ({ descricao, ncm, qtd, compra, venda: null, icms, pis, cofins, cct, seletivo, ativ: "01" }));
-const DEF_PARAMS = () => ({ regime: "rr", ano: 2027, rates: {}, is: 0, markup: 1.32, snReg: "SN_PLENO", fatorR: false, sn: JSON.parse(JSON.stringify(DEF_SN)) });
+const DEF_PARAMS = () => ({ regime: "rr", ano: 2027, rates: {}, is: 0, markup: 1.32, snReg: "SN_PLENO", fatorR: false, exclIcms: true, stat: true, sn: JSON.parse(JSON.stringify(DEF_SN)) });
 
 const KEY = "calc-reforma-rfb-v2";
 let items = JSON.parse(JSON.stringify(DEMO));
@@ -465,10 +481,13 @@ function calcRR(it, y, tipo) {
   const vt = tipo === "saida"
     ? (it.venda === null || it.venda === undefined || it.venda === "" ? round2(it.compra * params.markup) : Number(it.venda))
     : Number(it.compra) || 0;
-  const icms = round2(vt * (it.icms || 0) / 100), pis = round2(vt * (it.pis || 0) / 100), cofins = round2(vt * (it.cofins || 0) / 100);
+  const icms = round2(vt * (it.icms || 0) / 100);
+  const bPC = params.exclIcms ? vt - icms : vt;
+  const pis = round2(bPC * (it.pis || 0) / 100), cofins = round2(bPC * (it.cofins || 0) / 100);
   const base0 = vt - icms - pis - cofins;
   const dt = dateOf(y), ct = classesFor(y).get(it.cct) || classesFor(y).get("000001");
   const r = ratesFor(y);
+  const stat = !!params.stat && y === 2026;
   const isv = y >= 2027 && it.seletivo ? round2(base0 * params.is / 100) : 0;
   const tr = trOf(ct, dt);
   const out = { descricao: it.descricao, ncm: it.ncm, cct: ct ? ct.cd : "", valor: vt, icms, pis, cofins, is: isv };
@@ -487,15 +506,15 @@ function calcRR(it, y, tipo) {
   }
   out.base = round2(baseC); out.cbs = res.CBS; out.ibsUF = res.IBSUF; out.ibsMun = res.IBSMun; out.ibs = round2(res.IBSUF + res.IBSMun);
   out.icmsY = round2(icms * icmsFactor(y)); out.pisY = pisCofinsOn(y) ? pis : 0; out.cofinsY = pisCofinsOn(y) ? cofins : 0;
-  out.total = round2(base0 + isv + out.cbs + out.ibs + out.icmsY + out.pisY + out.cofinsY);
+  const ibscbsEf = stat ? 0 : out.cbs + out.ibs;
+  out.total = round2(base0 + isv + ibscbsEf + out.icmsY + out.pisY + out.cofinsY);
   out.dif = round2(out.total - vt);
   out.atual = round2(icms + pis + cofins);
   const legado = out.icmsY + out.pisY + out.cofinsY;
-  out.reforma = tipo === "entrada"
-    ? round2(legado + (ct && ct.credCBS ? out.cbs : 0) + (ct && ct.credIBS ? out.ibs : 0))
-    : round2(legado + out.cbs + out.ibs + out.is);
-  out.ibscbs = round2(out.cbs + out.ibs);
-  out.ibscbsCred = tipo === "entrada" ? round2((ct && ct.credCBS ? out.cbs : 0) + (ct && ct.credIBS ? out.ibs : 0)) : out.ibscbs;
+  const cred = stat ? 0 : (ct && ct.credCBS ? out.cbs : 0) + (ct && ct.credIBS ? out.ibs : 0);
+  out.reforma = tipo === "entrada" ? round2(legado + cred) : round2(legado + ibscbsEf + out.is);
+  out.ibscbs = round2(ibscbsEf);
+  out.ibscbsCred = tipo === "entrada" ? round2(cred) : out.ibscbs;
   return out;
 }
 
@@ -558,6 +577,9 @@ function fillParams() {
   $("pCbs").value = fmtIn(r.cbs); $("pIbsUf").value = fmtIn(r.ibsUF); $("pIbsMun").value = fmtIn(r.ibsMun);
   ["bOf1", "bOf2", "bOf3"].forEach((b) => { $(b).hidden = !r.official; });
   $("pIs").value = fmtIn(params.is); $("pMk").value = fmtIn(params.markup);
+  $("fExcl").checked = params.exclIcms !== false;
+  $("fStat").checked = params.stat !== false; $("fStat").disabled = params.ano !== 2026;
+  $("fStatWrap").classList.toggle("off", params.ano !== 2026); $("fStatWrap").title = params.ano !== 2026 ? T("fStatOff") : "";
   document.querySelectorAll("#segRegime button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.reg === params.regime)));
   document.body.classList.toggle("mode-sn", params.regime === "sn");
   $("snPanel").hidden = params.regime !== "sn";
@@ -590,6 +612,8 @@ document.querySelectorAll("#segRegime button").forEach((b) => b.addEventListener
   params.regime = b.dataset.reg; if (params.regime === "sn" && params.ano < 2027) params.ano = 2027; fillParams(); renderEditor(); refresh();
 }));
 $("snReg").addEventListener("change", (e) => { params.snReg = e.target.value; refresh(); });
+$("fExcl").addEventListener("change", (e) => { params.exclIcms = e.target.checked; refresh(); });
+$("fStat").addEventListener("change", (e) => { params.stat = e.target.checked; refresh(); });
 $("snFatorR").addEventListener("change", (e) => { params.fatorR = e.target.checked; refresh(); });
 $("snAnexos").addEventListener("input", (e) => {
   const a = e.target.dataset.an, k = e.target.dataset.k; if (!a) return;
@@ -738,10 +762,11 @@ function notices(rep) {
     if (y < 2027) msgs.push(T("nSN2026"));
     else if (params.snReg === "SN_SUBLIMITE") msgs.push(T("nSNsub"));
   }
-  if (y === 2026) msgs.push(T("n2026"));
+  if (y === 2026) { msgs.push(T("n2026")); if (params.stat !== false) msgs.push(T("nStat")); }
   else if (y <= 2028) msgs.push(F("n2027", { ano: y }));
   else if (y <= 2032) msgs.push(F("n2029", { ano: y, icms: dec(icmsFactor(y) * 100, 0) }));
   else msgs.push(F("n2033", { ano: y }));
+  if (params.exclIcms === false) msgs.push(T("nNoExcl"));
   if (y >= 2027 && !params.is && items.some((it) => it.seletivo)) msgs.push(T("nIsZero"));
   $("notice").innerHTML = msgs.map((m) => `<div>${esc(m)}</div>`).join("");
 }
@@ -831,6 +856,8 @@ fetch("data.json", { cache: "no-cache" }).then((r) => { if (!r.ok) throw new Err
   DATA = d; CT_BY_YEAR = {};
   if (!YEARS.includes(params.ano)) params.ano = 2027;
   if (!params.sn || !params.sn.I) params.sn = JSON.parse(JSON.stringify(DEF_SN));
+  if (params.exclIcms === undefined) params.exclIcms = true;
+  if (params.stat === undefined) params.stat = true;
   applyLang(lang);
 }).catch(() => { $("verdict").innerHTML = `<strong>${esc(T("loadErr"))}</strong>`; });
 </script>
