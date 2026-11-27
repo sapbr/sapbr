@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Calculadora da Reforma Tributária</title>
+<link rel="icon" href="https://sapbrazil.wordpress.com/wp-content/uploads/2025/05/logo-sapbr-no-bg-small.png?w=64">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -54,6 +55,10 @@ h3 { font-size: 15px; }
 .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 header.top { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: end; justify-content: space-between; }
 header.top p { margin: 4px 0 0; max-width: 72ch; }
+.brand { display: flex; gap: 14px; align-items: center; }
+.brand a.logo { flex: none; display: grid; place-items: center; width: 64px; height: 64px; border-radius: 12px; background: #fff; border: 1px solid var(--line); }
+.brand a.logo img { width: 56px; height: 56px; object-fit: contain; display: block; }
+@media (max-width: 420px) { .brand a.logo { width: 48px; height: 48px; } .brand a.logo img { width: 42px; height: 42px; } }
 .btns { display: flex; flex-wrap: wrap; gap: 8px; }
 button { font: 600 13px var(--font-body); border-radius: 6px; padding: 8px 12px; cursor: pointer; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
 button.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); }
@@ -138,14 +143,18 @@ body.mode-sn .sn-only { display: table-cell; }
 <body>
 <div class="wrap">
   <header class="top">
-    <div>
+    <div class="brand">
+      <a class="logo" href="https://sapbr.com" target="_blank" rel="noopener" title="SAPBR Technologies"><img src="https://sapbrazil.wordpress.com/wp-content/uploads/2025/05/logo-sapbr-no-bg-small.png?w=150" alt="SAPBR Technologies" width="56" height="56"></a>
+      <div>
       <h1 data-i18n="title">Calculadora da Reforma Tributária</h1>
       <p class="muted" data-i18n="lead">Simula CBS, IBS e Imposto Seletivo produto a produto com as tabelas e fórmulas oficiais da Receita Federal, no regime regular ou no Simples Nacional.</p>
+      </div>
     </div>
     <div class="btns">
       <div class="seg lang" role="group" aria-label="Idioma / Language"><button type="button" data-lang="en">English (US)</button><button type="button" data-lang="pt">Português (BR)</button></div>
       <button type="button" id="btnDemo" data-i18n="restore">Restaurar exemplo</button>
       <button type="button" id="btnClear" data-i18n="clear">Limpar produtos</button>
+      <button type="button" id="btnShare" data-i18n="share">Compartilhar link</button>
       <button type="button" id="btnCsv" class="primary" data-i18n="csv">Copiar CSV</button>
     </div>
   </header>
@@ -266,6 +275,7 @@ const I18N = {
     product: "Produto", colVal: "Valor", colBase: "Base IBS/CBS", colRed: "Red. %", colTot: "Total reforma", colDif: "Diferença", now: "atual", ref: "reforma", total: "Total",
     colRb: "Receita bruta", colTp: "tpRBSN", colAnexo: "Anexo", colDue: "Devido", colPend: "Pendente",
     toastRestore: "Exemplo restaurado", toastClear: "Produtos removidos. Use Adicionar produto.", toastCsv: "CSV copiado. Cole no Excel.", toastCsvErr: "Não foi possível copiar. Verifique a permissão da área de transferência.",
+    share: "Compartilhar link", toastShare: "Link copiado. Quem abrir verá a simulação exatamente como está na tela.", toastShared: "Simulação compartilhada carregada.", toastShareErr: "Não foi possível gerar o link.", sharePrompt: "Copie o link da simulação:",
     n2026: "2026 é o ano de teste: CBS 0,9% e IBS 0,1% são as alíquotas de referência oficiais da RFB e o valor pode ser compensado com PIS/COFINS. PIS, COFINS e ICMS continuam integrais.",
     n2027: "Em {ano} a CBS substitui PIS/COFINS e o IBS segue em 0,1%. A base oficial ainda não traz alíquotas para este ano: os valores pré-preenchidos são os da documentação de exemplo da RFB; ajuste conforme as alíquotas publicadas.",
     n2029: "Em {ano} o ICMS cai para {icms}% da alíquota atual e o IBS sobe gradualmente. A base oficial ainda não traz alíquotas para este ano: informe as alíquotas de referência de CBS e IBS.",
@@ -321,6 +331,7 @@ const I18N = {
     product: "Product", colVal: "Value", colBase: "IBS/CBS base", colRed: "Red. %", colTot: "Reform total", colDif: "Difference", now: "current", ref: "reform", total: "Total",
     colRb: "Gross revenue", colTp: "tpRBSN", colAnexo: "Annex", colDue: "Due", colPend: "Pending",
     toastRestore: "Example restored", toastClear: "Products cleared. Use Add product.", toastCsv: "CSV copied. Paste it into Excel.", toastCsvErr: "Could not copy. Check the clipboard permission.",
+    share: "Share link", toastShare: "Link copied. Anyone who opens it sees this simulation exactly as on screen.", toastShared: "Shared simulation loaded.", toastShareErr: "Could not create the link.", sharePrompt: "Copy the simulation link:",
     n2026: "2026 is the test year: CBS 0.9% and IBS 0.1% are the Receita Federal's official reference rates and can be offset against PIS/COFINS. PIS, COFINS and ICMS remain in full.",
     n2027: "In {ano} CBS replaces PIS/COFINS and IBS stays at 0.1%. The official database has no rates for this year yet: the prefilled values come from the Receita Federal's documentation examples; adjust them to the published rates.",
     n2029: "In {ano} ICMS drops to {icms}% of today's rate and IBS phases in. The official database has no rates for this year yet: enter the CBS and IBS reference rates.",
@@ -829,6 +840,52 @@ $("btnCsv").addEventListener("click", async () => {
   try { await navigator.clipboard.writeText(toCsv()); toast(T("toastCsv")); }
   catch (e) { toast(T("toastCsvErr")); }
 });
+// Share link: the whole simulation (products + parameters) travels compressed in the URL fragment (#z=...).
+// The fragment is never sent to the server, so the data stays between the sender and the recipient.
+const b64u = {
+  enc(bytes) { let s = ""; for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); },
+  dec(str) { str = str.replace(/-/g, "+").replace(/_/g, "/"); while (str.length % 4) str += "="; return Uint8Array.from(atob(str), (c) => c.charCodeAt(0)); },
+};
+const pipeBytes = async (bytes, stream) => new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(stream)).arrayBuffer());
+async function packState() {
+  const json = new TextEncoder().encode(JSON.stringify({ v: 1, items, params }));
+  if (typeof CompressionStream === "function") return "z=" + b64u.enc(await pipeBytes(json, new CompressionStream("deflate-raw")));
+  return "j=" + b64u.enc(json);
+}
+const num = (v, d = 0) => (v === null || v === "" || v === undefined ? d : Number.isFinite(Number(v)) ? Number(v) : d);
+const str = (v, max = 120) => String(v ?? "").slice(0, max);
+function cleanShared(o) {
+  if (!o || o.v !== 1 || !Array.isArray(o.items)) return null;
+  const its = o.items.slice(0, 500).map((it) => ({
+    descricao: str(it.descricao), ncm: str(it.ncm, 10).replace(/\D/g, ""), qtd: num(it.qtd), compra: num(it.compra),
+    venda: it.venda === null || it.venda === "" || it.venda === undefined ? null : num(it.venda),
+    icms: num(it.icms), pis: num(it.pis), cofins: num(it.cofins),
+    cct: /^\d{6}$/.test(String(it.cct)) ? String(it.cct) : "000001", seletivo: !!it.seletivo,
+    ativ: /^[A-Za-z0-9]{1,4}$/.test(String(it.ativ)) ? String(it.ativ) : "01",
+  }));
+  const p = o.params || {}, d = DEF_PARAMS(), rates = {};
+  for (const [y, r] of Object.entries(p.rates || {})) if (YEARS.includes(Number(y)) && r) rates[y] = { cbs: num(r.cbs), ibsUF: num(r.ibsUF), ibsMun: num(r.ibsMun) };
+  const sn = d.sn;
+  for (const a of ANEXOS) if (p.sn && p.sn[a]) sn[a] = { cbs: num(p.sn[a].cbs, sn[a].cbs), ibs: num(p.sn[a].ibs, sn[a].ibs) };
+  return { items: its, params: {
+    ...d, regime: p.regime === "sn" ? "sn" : "rr", ano: YEARS.includes(Number(p.ano)) ? Number(p.ano) : d.ano, rates,
+    is: num(p.is), markup: num(p.markup, d.markup), snReg: /^[A-Z_]{1,30}$/.test(String(p.snReg)) ? p.snReg : d.snReg,
+    fatorR: !!p.fatorR, exclIcms: p.exclIcms === undefined ? d.exclIcms : !!p.exclIcms, stat: p.stat === undefined ? d.stat : !!p.stat, sn,
+  } };
+}
+async function unpackState(hash) {
+  const m = /^#(z|j)=([A-Za-z0-9_-]+)$/.exec(hash || ""); if (!m) return null;
+  let bytes = b64u.dec(m[2]);
+  if (m[1] === "z") bytes = await pipeBytes(bytes, new DecompressionStream("deflate-raw"));
+  return cleanShared(JSON.parse(new TextDecoder().decode(bytes)));
+}
+$("btnShare").addEventListener("click", async () => {
+  let url;
+  try { const u = new URL(location.href); u.searchParams.set("lang", lang); u.hash = await packState(); url = u.toString(); }
+  catch (e) { toast(T("toastShareErr")); return; }
+  try { await navigator.clipboard.writeText(url); toast(T("toastShare")); }
+  catch (e) { window.prompt(T("sharePrompt"), url); }
+});
 let tt; function toast(m) { const el = $("toast"); el.textContent = m; el.classList.add("show"); clearTimeout(tt); tt = setTimeout(() => el.classList.remove("show"), 2600); }
 
 function applyLang(l) {
@@ -852,13 +909,19 @@ document.querySelectorAll(".lang button").forEach((b) => b.addEventListener("cli
 
 applyLang(lang);
 $("verdict").innerHTML = '<span class="loading">…</span>';
-fetch("data.json", { cache: "no-cache" }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }).then((d) => {
+const sharedP = unpackState(location.hash).catch(() => null);
+Promise.all([fetch("data.json", { cache: "no-cache" }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }), sharedP]).then(([d, shared]) => {
+  if (shared) {
+    items = shared.items; params = shared.params;
+    try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+  }
   DATA = d; CT_BY_YEAR = {};
   if (!YEARS.includes(params.ano)) params.ano = 2027;
   if (!params.sn || !params.sn.I) params.sn = JSON.parse(JSON.stringify(DEF_SN));
   if (params.exclIcms === undefined) params.exclIcms = true;
   if (params.stat === undefined) params.stat = true;
   applyLang(lang);
+  if (shared) toast(T("toastShared"));
 }).catch(() => { $("verdict").innerHTML = `<strong>${esc(T("loadErr"))}</strong>`; });
 </script>
 </body>
