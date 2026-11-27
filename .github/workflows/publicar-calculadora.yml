@@ -1,0 +1,61 @@
+name: Publicar calculadora (dados oficiais da Receita Federal)
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 9 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Baixar repositorio oficial (regime regular)
+        uses: actions/checkout@v4
+        with:
+          repository: ReceitaFederal/calculadora-rtc-regime-regular
+          path: rfb-regime-regular
+
+      - name: Baixar repositorio oficial (Simples Nacional)
+        uses: actions/checkout@v4
+        with:
+          repository: ReceitaFederal/calculadora-rtc-simples-nacional
+          path: rfb-simples-nacional
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Gerar data.json a partir da base oficial
+        run: |
+          mkdir -p _site
+          python scripts/build_data.py rfb-regime-regular rfb-simples-nacional _site/data.json
+          cp index.html README.md _site/
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
