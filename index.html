@@ -173,6 +173,7 @@ body.mode-sn .sn-only { display: table-cell; }
     <div class="field flags">
       <label class="chk"><input type="checkbox" id="fExcl"> <span data-i18n="fExcl">Excluir ICMS da base do PIS/COFINS (Tema 69)</span></label>
       <label class="chk" id="fStatWrap"><input type="checkbox" id="fStat"> <span data-i18n="fStat">CBS/IBS estatístico em 2026 (não soma ao total)</span></label>
+      <label class="chk tip" id="fIcmsIbsWrap"><input type="checkbox" id="fIcmsIbs"> <span data-i18n="fIcmsIbs">Incluir CBS/IBS na base do ICMS a partir de 2027 (entendimento SEFAZ-SP)</span></label>
     </div>
   </section>
 
@@ -290,7 +291,7 @@ const I18N = {
     nSNsub: "No regime de excesso de sublimite o IBS é recolhido pelo regime regular, fora do Simples, e não aparece no lado do Simples.",
     nIsZero: "Há produtos marcados com Imposto Seletivo, mas a alíquota de IS está em 0%. A base oficial lista os NCM sujeitos ao IS, mas não traz as alíquotas; informe a alíquota.",
     loadErr: "Não foi possível carregar os dados oficiais (data.json). Recarregue a página.",
-    fExcl: "Excluir ICMS da base do PIS/COFINS (Tema 69)", fStat: "CBS/IBS estatístico em 2026 (não soma ao total)", fStatOff: "Só se aplica a 2026",
+    fExcl: "Excluir ICMS da base do PIS/COFINS (Tema 69)", fStat: "CBS/IBS estatístico em 2026 (não soma ao total)", fStatOff: "Só se aplica a 2026", fIcmsIbs: "Incluir CBS/IBS na base do ICMS a partir de 2027 (entendimento SEFAZ-SP)", fIcmsIbsT: "A SEFAZ-SP entende que CBS e IBS, quando efetivamente cobrados, integram o valor da operação e a base do ICMS (Respostas à Consulta 32.303/2025 e 33.083/2026). A LC 227/2026 incluiu na base do ICMS só o Imposto Seletivo, e a questão está no Judiciário. Ligado: segue o fisco paulista. Desligado: CBS e IBS ficam fora da base do ICMS.", fIcmsIbsOff: "Só se aplica a partir de 2027", nIcmsIbs: "CBS e IBS incluídos na base do ICMS (entendimento SEFAZ-SP, em disputa judicial). Desligue a opção para simular a exclusão.",
     nStat: "CBS e IBS de 2026 tratados como estatísticos: aparecem na memória de cálculo, mas não somam ao total da nota, aos débitos, aos créditos nem ao resultado (como o flag de imposto estatístico do SAP).",
     nNoExcl: "PIS e COFINS calculados sobre o valor cheio, sem excluir o ICMS da base.",
     how: [
@@ -298,7 +299,7 @@ const I18N = {
       "Regime regular: base = valor − ICMS − PIS − COFINS + IS. Alíquota efetiva = alíquota × (1 − redução da cClassTrib), pela fórmula do tratamento tributário oficial. Tributo = base × alíquota efetiva, arredondado em 2 casas (meio para o par, como a API).",
       "PIS/COFINS: sobre o valor sem o ICMS (Tema 69 do STF) quando a opção estiver ligada. Em 2026, com a opção de CBS/IBS estatístico ligada, os valores são destacados mas não somam ao total da nota nem ao resultado, como no SAP; a base de CBS/IBS segue a base unificada oficial (valor − ICMS − PIS − COFINS).",
       "IPI: por fora, sobre o valor do produto, e não integra a base de CBS/IBS. Na venda para consumidor final (uso/consumo, ativo ou não contribuinte) o IPI entra na base do ICMS (CF art. 155, §2º, XI; LC 87/96 art. 13, §2º). A partir de 2027 o IPI tem alíquota zero, exceto para produtos com industrialização incentivada na ZFM (ADCT art. 126, III, a; LC 214/2025 art. 454): marque IPI 2027+ (ZFM) para manter a alíquota informada.",
-      "Créditos: IBS/CBS das compras quando a cClassTrib permite apropriação pelo adquirente; o IS não gera crédito. Transição: PIS/COFINS só em 2026; ICMS integral até 2028 e reduzido a 90%, 80%, 70% e 60% de 2029 a 2032 (EC 132/2023). A partir de 2027 o valor líquido é mantido e o ICMS (por dentro) é recalculado sobre o novo preço sem PIS/COFINS: ICMS = (base líquida + IS) ÷ (1 − alíquota do ano) × alíquota do ano.",
+      "Créditos: IBS/CBS das compras quando a cClassTrib permite apropriação pelo adquirente; o IS não gera crédito. Transição: PIS/COFINS só em 2026; ICMS integral até 2028 e reduzido a 90%, 80%, 70% e 60% de 2029 a 2032 (EC 132/2023). A partir de 2027 o valor líquido é mantido e o ICMS (por dentro) é recalculado sobre o novo preço sem PIS/COFINS: ICMS = (base líquida + IS + CBS/IBS) ÷ (1 − alíquota do ano) × alíquota do ano. CBS/IBS entram na base do ICMS quando a opção do entendimento SEFAZ-SP está ligada (padrão); a LC 227/2026 incluiu expressamente só o IS, e a questão está em disputa judicial.",
       "Simples Nacional: receita bruta do item × fator do tipo de receita (tpRBSN da cClassTrib) × alíquota efetiva do anexo da atividade. O destino devido ou pendente segue a tabela oficial de regimes. A comparação mostra o mesmo mix com IBS/CBS por fora, no regime regular.",
       "Fora do escopo: tributação monofásica de combustíveis, compras governamentais, diferimento parcial e regimes específicos. Simulação ilustrativa; não substitui a calculadora oficial nem parecer fiscal."
     ],
@@ -347,7 +348,7 @@ const I18N = {
     nSNsub: "Under the sublimit-exceeded regime, IBS is paid under the regular regime outside Simples and does not appear on the Simples side.",
     nIsZero: "Some products are flagged for the Selective Tax, but the IS rate is 0%. The official database lists the NCMs subject to IS but not the rates; enter the rate.",
     loadErr: "Could not load the official data (data.json). Reload the page.",
-    fExcl: "Exclude ICMS from the PIS/COFINS base (Tema 69)", fStat: "Statistical CBS/IBS in 2026 (not added to total)", fStatOff: "Applies to 2026 only",
+    fExcl: "Exclude ICMS from the PIS/COFINS base (Tema 69)", fStat: "Statistical CBS/IBS in 2026 (not added to total)", fStatOff: "Applies to 2026 only", fIcmsIbs: "Include CBS/IBS in the ICMS base from 2027 (São Paulo tax authority view)", fIcmsIbsT: "The São Paulo tax authority (SEFAZ-SP) holds that CBS and IBS, once actually charged, are part of the transaction value and of the ICMS base (rulings 32,303/2025 and 33,083/2026). LC 227/2026 added only the Selective Tax to the ICMS base, and the issue is being litigated. On: follows SEFAZ-SP. Off: CBS and IBS stay out of the ICMS base.", fIcmsIbsOff: "Applies from 2027 onward", nIcmsIbs: "CBS and IBS included in the ICMS base (SEFAZ-SP view, under litigation). Turn the option off to simulate their exclusion.",
     nStat: "2026 CBS and IBS are treated as statistical: they show in the calculation detail but are not added to the invoice total, debits, credits or net tax (like SAP's statistical tax flag).",
     nNoExcl: "PIS and COFINS are calculated on the full value, without excluding ICMS from the base.",
     how: [
@@ -355,7 +356,7 @@ const I18N = {
       "Regular regime: base = value − ICMS − PIS − COFINS + IS. Effective rate = rate × (1 − cClassTrib reduction), using the official tax treatment formula. Tax = base × effective rate, rounded to 2 decimals (half to even, like the API).",
       "PIS/COFINS: on the value net of ICMS (Supreme Court Tema 69) when that option is on. In 2026, with the statistical CBS/IBS option on, the amounts are shown but not added to the invoice total or net tax, as in SAP; the CBS/IBS base follows the official unified base (value − ICMS − PIS − COFINS).",
       "IPI: charged on top of the product value and not part of the CBS/IBS base. On a sale to a final consumer (use/consumption, fixed asset or non-taxpayer) IPI is included in the ICMS base (Federal Constitution art. 155, par. 2, XI; LC 87/96 art. 13, par. 2). From 2027 IPI rates are zero, except for products with incentivized industrialization in the Manaus Free Trade Zone (ADCT art. 126, III, a; LC 214/2025 art. 454): tick IPI 2027+ (ZFM) to keep the rate entered.",
-      "Credits: IBS/CBS on purchases when the cClassTrib allows the buyer to take credit; IS is not creditable. Transition: PIS/COFINS only in 2026; ICMS in full through 2028 and reduced to 90%, 80%, 70% and 60% from 2029 to 2032 (Constitutional Amendment 132/2023). From 2027 the net value is kept and ICMS (charged inside the price) is recalculated on the new price without PIS/COFINS: ICMS = (net base + IS) ÷ (1 − the year's rate) × the year's rate.",
+      "Credits: IBS/CBS on purchases when the cClassTrib allows the buyer to take credit; IS is not creditable. Transition: PIS/COFINS only in 2026; ICMS in full through 2028 and reduced to 90%, 80%, 70% and 60% from 2029 to 2032 (Constitutional Amendment 132/2023). From 2027 the net value is kept and ICMS (charged inside the price) is recalculated on the new price without PIS/COFINS: ICMS = (net base + IS + CBS/IBS) ÷ (1 − the year's rate) × the year's rate. CBS/IBS enter the ICMS base when the SEFAZ-SP option is on (default); LC 227/2026 expressly added only IS, and the issue is being litigated.",
       "Simples Nacional: item gross revenue × revenue-type factor (tpRBSN of the cClassTrib) × effective rate of the activity's annex. Due or pending follows the official regime table. The comparison shows the same mix with IBS/CBS paid outside Simples, under the regular regime.",
       "Out of scope: single-phase fuel taxation, government purchases, partial deferral and special regimes. Illustrative simulation; not a substitute for the official calculator or for tax advice."
     ],
@@ -477,7 +478,7 @@ const DEMO = [
   ["Detergente líquido 500ml", "34025000", 8200, 18860, 17, PIS, COF, "000001", false],
 ].map(([descricao, ncm, qtd, compra, icms, pis, cofins, cct, seletivo]) =>
   ({ descricao, ncm, qtd, compra, venda: null, icms, pis, cofins, ipi: 0, cct, seletivo, cf: false, zfm: false, ativ: "01" }));
-const DEF_PARAMS = () => ({ regime: "rr", ano: 2027, rates: {}, is: 0, markup: 1.32, snReg: "SN_PLENO", fatorR: false, exclIcms: true, stat: true, sn: JSON.parse(JSON.stringify(DEF_SN)) });
+const DEF_PARAMS = () => ({ regime: "rr", ano: 2027, rates: {}, is: 0, markup: 1.32, snReg: "SN_PLENO", fatorR: false, exclIcms: true, stat: true, icmsIbs: true, sn: JSON.parse(JSON.stringify(DEF_SN)) });
 
 const KEY = "calc-reforma-rfb-v2";
 let items = JSON.parse(JSON.stringify(DEMO));
@@ -534,10 +535,11 @@ function calcRR(it, y, tipo) {
   const icmsRateY = (it.icms || 0) / 100 * icmsFactor(y);
   if (pisCofinsOn(y)) { out.icmsY = round2(icms * icmsFactor(y)); out.ipiY = ipi; }
   else {
-    const iY = it.zfm ? ipiRate : 0, k = 1 - icmsRateY * (1 + (cfSale ? iY : 0));
-    const price = k > 0 ? (base0 + isv) / k : base0 + isv;
-    out.icmsY = k > 0 ? round2(price * icmsRateY * (1 + (cfSale ? iY : 0))) : 0;
-    out.ipiY = round2(price * iY);
+    // ICMS base = product value (net + IS + ICMS) + IPI on a final-consumer sale + CBS/IBS when the SEFAZ-SP option is on.
+    const iY = it.zfm ? ipiRate : 0, cfI = cfSale ? iY : 0, k = 1 - icmsRateY * (1 + cfI);
+    const tIbs = params.icmsIbs !== false ? out.cbs + out.ibs : 0;
+    out.icmsY = k > 0 ? round2(icmsRateY * ((base0 + isv) * (1 + cfI) + tIbs) / k) : 0;
+    out.ipiY = round2((base0 + isv + out.icmsY) * iY);
   }
   out.pisY = pisCofinsOn(y) ? pis : 0; out.cofinsY = pisCofinsOn(y) ? cofins : 0;
   const ibscbsEf = stat ? 0 : out.cbs + out.ibs;
@@ -614,6 +616,8 @@ function fillParams() {
   $("fExcl").checked = params.exclIcms !== false;
   $("fStat").checked = params.stat !== false; $("fStat").disabled = params.ano !== 2026;
   $("fStatWrap").classList.toggle("off", params.ano !== 2026); $("fStatWrap").title = params.ano !== 2026 ? T("fStatOff") : "";
+  $("fIcmsIbs").checked = params.icmsIbs !== false; $("fIcmsIbs").disabled = params.ano < 2027;
+  $("fIcmsIbsWrap").classList.toggle("off", params.ano < 2027); $("fIcmsIbsWrap").title = params.ano < 2027 ? T("fIcmsIbsOff") : T("fIcmsIbsT");
   document.querySelectorAll("#segRegime button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.reg === params.regime)));
   document.body.classList.toggle("mode-sn", params.regime === "sn");
   $("snPanel").hidden = params.regime !== "sn";
@@ -648,6 +652,7 @@ document.querySelectorAll("#segRegime button").forEach((b) => b.addEventListener
 $("snReg").addEventListener("change", (e) => { params.snReg = e.target.value; refresh(); });
 $("fExcl").addEventListener("change", (e) => { params.exclIcms = e.target.checked; refresh(); });
 $("fStat").addEventListener("change", (e) => { params.stat = e.target.checked; refresh(); });
+$("fIcmsIbs").addEventListener("change", (e) => { params.icmsIbs = e.target.checked; refresh(); });
 $("snFatorR").addEventListener("change", (e) => { params.fatorR = e.target.checked; refresh(); });
 $("snAnexos").addEventListener("input", (e) => {
   const a = e.target.dataset.an, k = e.target.dataset.k; if (!a) return;
@@ -804,6 +809,7 @@ function notices(rep) {
   else if (y <= 2032) msgs.push(F("n2029", { ano: y, icms: dec(icmsFactor(y) * 100, 0) }));
   else msgs.push(F("n2033", { ano: y }));
   if (params.exclIcms === false) msgs.push(T("nNoExcl"));
+  if (params.regime === "rr" && params.ano >= 2027 && params.ano <= 2032 && params.icmsIbs !== false) msgs.push(T("nIcmsIbs"));
   if (y >= 2027 && !params.is && items.some((it) => it.seletivo)) msgs.push(T("nIsZero"));
   $("notice").innerHTML = msgs.map((m) => `<div>${esc(m)}</div>`).join("");
 }
@@ -896,7 +902,7 @@ function cleanShared(o) {
   return { items: its, params: {
     ...d, regime: p.regime === "sn" ? "sn" : "rr", ano: YEARS.includes(Number(p.ano)) ? Number(p.ano) : d.ano, rates,
     is: num(p.is), markup: num(p.markup, d.markup), snReg: /^[A-Z_]{1,30}$/.test(String(p.snReg)) ? p.snReg : d.snReg,
-    fatorR: !!p.fatorR, exclIcms: p.exclIcms === undefined ? d.exclIcms : !!p.exclIcms, stat: p.stat === undefined ? d.stat : !!p.stat, sn,
+    fatorR: !!p.fatorR, exclIcms: p.exclIcms === undefined ? d.exclIcms : !!p.exclIcms, stat: p.stat === undefined ? d.stat : !!p.stat, icmsIbs: p.icmsIbs === undefined ? d.icmsIbs : !!p.icmsIbs, sn,
   } };
 }
 async function unpackState(hash) {
@@ -1049,6 +1055,7 @@ Promise.all([fetch("data.json", { cache: "no-cache" }).then((r) => { if (!r.ok) 
   if (!params.sn || !params.sn.I) params.sn = JSON.parse(JSON.stringify(DEF_SN));
   if (params.exclIcms === undefined) params.exclIcms = true;
   if (params.stat === undefined) params.stat = true;
+  if (params.icmsIbs === undefined) params.icmsIbs = true;
   applyLang(lang);
   if (shared) toast(T("toastShared"));
 }).catch(() => { $("verdict").innerHTML = `<strong>${esc(T("loadErr"))}</strong>`; });
