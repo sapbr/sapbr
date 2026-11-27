@@ -291,7 +291,7 @@ const I18N = {
       "Tabelas e fórmulas da base oficial da Receita Federal: cClassTrib, CST, percentual de redução por tributo, vínculo NCM × cClassTrib, NCM sujeitos ao Imposto Seletivo e tabelas do Simples Nacional.",
       "Regime regular: base = valor − ICMS − PIS − COFINS + IS. Alíquota efetiva = alíquota × (1 − redução da cClassTrib), pela fórmula do tratamento tributário oficial. Tributo = base × alíquota efetiva, arredondado em 2 casas (meio para o par, como a API).",
       "PIS/COFINS: sobre o valor sem o ICMS (Tema 69 do STF) quando a opção estiver ligada. Em 2026, com a opção de CBS/IBS estatístico ligada, os valores são destacados mas não somam ao total da nota nem ao resultado, como no SAP; a base de CBS/IBS segue a base unificada oficial (valor − ICMS − PIS − COFINS).",
-      "Créditos: IBS/CBS das compras quando a cClassTrib permite apropriação pelo adquirente; o IS não gera crédito. Transição: PIS/COFINS só em 2026; ICMS integral até 2028 e reduzido a 90%, 80%, 70% e 60% de 2029 a 2032 (EC 132/2023).",
+      "Créditos: IBS/CBS das compras quando a cClassTrib permite apropriação pelo adquirente; o IS não gera crédito. Transição: PIS/COFINS só em 2026; ICMS integral até 2028 e reduzido a 90%, 80%, 70% e 60% de 2029 a 2032 (EC 132/2023). A partir de 2027 o valor líquido é mantido e o ICMS (por dentro) é recalculado sobre o novo preço sem PIS/COFINS: ICMS = (base líquida + IS) ÷ (1 − alíquota do ano) × alíquota do ano.",
       "Simples Nacional: receita bruta do item × fator do tipo de receita (tpRBSN da cClassTrib) × alíquota efetiva do anexo da atividade. O destino devido ou pendente segue a tabela oficial de regimes. A comparação mostra o mesmo mix com IBS/CBS por fora, no regime regular.",
       "Fora do escopo: tributação monofásica de combustíveis, compras governamentais, diferimento parcial e regimes específicos. Simulação ilustrativa; não substitui a calculadora oficial nem parecer fiscal."
     ],
@@ -347,7 +347,7 @@ const I18N = {
       "Tables and formulas from the Receita Federal's official database: cClassTrib, CST, reduction percentage per tax, NCM × cClassTrib links, NCMs subject to the Selective Tax and the Simples Nacional tables.",
       "Regular regime: base = value − ICMS − PIS − COFINS + IS. Effective rate = rate × (1 − cClassTrib reduction), using the official tax treatment formula. Tax = base × effective rate, rounded to 2 decimals (half to even, like the API).",
       "PIS/COFINS: on the value net of ICMS (Supreme Court Tema 69) when that option is on. In 2026, with the statistical CBS/IBS option on, the amounts are shown but not added to the invoice total or net tax, as in SAP; the CBS/IBS base follows the official unified base (value − ICMS − PIS − COFINS).",
-      "Credits: IBS/CBS on purchases when the cClassTrib allows the buyer to take credit; IS is not creditable. Transition: PIS/COFINS only in 2026; ICMS in full through 2028 and reduced to 90%, 80%, 70% and 60% from 2029 to 2032 (Constitutional Amendment 132/2023).",
+      "Credits: IBS/CBS on purchases when the cClassTrib allows the buyer to take credit; IS is not creditable. Transition: PIS/COFINS only in 2026; ICMS in full through 2028 and reduced to 90%, 80%, 70% and 60% from 2029 to 2032 (Constitutional Amendment 132/2023). From 2027 the net value is kept and ICMS (charged inside the price) is recalculated on the new price without PIS/COFINS: ICMS = (net base + IS) ÷ (1 − the year's rate) × the year's rate.",
       "Simples Nacional: item gross revenue × revenue-type factor (tpRBSN of the cClassTrib) × effective rate of the activity's annex. Due or pending follows the official regime table. The comparison shows the same mix with IBS/CBS paid outside Simples, under the regular regime.",
       "Out of scope: single-phase fuel taxation, government purchases, partial deferral and special regimes. Illustrative simulation; not a substitute for the official calculator or for tax advice."
     ],
@@ -516,7 +516,11 @@ function calcRR(it, y, tipo) {
     res[t] = devido; baseC = vars.baseCalculo; out.red = pRed;
   }
   out.base = round2(baseC); out.cbs = res.CBS; out.ibsUF = res.IBSUF; out.ibsMun = res.IBSMun; out.ibs = round2(res.IBSUF + res.IBSMun);
-  out.icmsY = round2(icms * icmsFactor(y)); out.pisY = pisCofinsOn(y) ? pis : 0; out.cofinsY = pisCofinsOn(y) ? cofins : 0;
+  // ICMS is charged "por dentro". When PIS/COFINS leave the price (2027+), the same net value (base0) is kept
+  // and ICMS is grossed up on that new price, instead of being kept on the old price that still embedded PIS/COFINS.
+  const icmsRateY = (it.icms || 0) / 100 * icmsFactor(y);
+  out.icmsY = pisCofinsOn(y) ? round2(icms * icmsFactor(y)) : icmsRateY > 0 && icmsRateY < 1 ? round2((base0 + isv) / (1 - icmsRateY) * icmsRateY) : 0;
+  out.pisY = pisCofinsOn(y) ? pis : 0; out.cofinsY = pisCofinsOn(y) ? cofins : 0;
   const ibscbsEf = stat ? 0 : out.cbs + out.ibs;
   out.total = round2(base0 + isv + ibscbsEf + out.icmsY + out.pisY + out.cofinsY);
   out.dif = round2(out.total - vt);
