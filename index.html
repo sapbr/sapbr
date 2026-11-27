@@ -280,7 +280,7 @@ const I18N = {
     sSell: "Venda bruta", sDeb: "Débitos ICMS/IPI/PIS/COFINS", sNet: "Venda líquida", sTot: "Venda total (reforma)", sDebR: "Débitos na reforma",
     rbsn: "Receita bruta (Simples)", snDue: "IBS/CBS devidos no Simples", rrDeb: "Débitos IBS/CBS por fora", rrCred: "Créditos IBS/CBS por fora",
     cDeb: "Débitos", cCred: "Créditos", cRes: "Resultado",
-    product: "Produto", colVal: "Valor total", colBase: "Base IBS/CBS", colRed: "Red. %", colTot: "Total reforma", colDif: "Diferença", now: "atual", ref: "reforma", total: "Total",
+    product: "Produto", colVal: "Valor total", colBase: "Base IBS/CBS", colBaseIcms: "Base ICMS", colRed: "Red. %", colTot: "Total reforma", colDif: "Diferença", now: "atual", ref: "reforma", total: "Total",
     colRb: "Receita bruta", colTp: "tpRBSN", colAnexo: "Anexo", colDue: "Devido", colPend: "Pendente",
     toastRestore: "Exemplo restaurado", toastClear: "Produtos removidos. Use Adicionar produto.", toastCsv: "CSV copiado. Cole no Excel.", toastCsvErr: "Não foi possível copiar. Verifique a permissão da área de transferência.",
     share: "Compartilhar link", toastShare: "Link copiado. Quem abrir verá a simulação exatamente como está na tela.", toastShared: "Simulação compartilhada carregada.", toastShareErr: "Não foi possível gerar o link.", sharePrompt: "Copie o link da simulação:",
@@ -337,7 +337,7 @@ const I18N = {
     sSell: "Gross sales", sDeb: "ICMS/IPI/PIS/COFINS debits", sNet: "Net sales", sTot: "Total sales (reform)", sDebR: "Reform debits",
     rbsn: "Gross revenue (Simples)", snDue: "IBS/CBS due within Simples", rrDeb: "IBS/CBS debits outside Simples", rrCred: "IBS/CBS credits outside Simples",
     cDeb: "Debits", cCred: "Credits", cRes: "Net tax",
-    product: "Product", colVal: "Total value", colBase: "IBS/CBS base", colRed: "Red. %", colTot: "Reform total", colDif: "Difference", now: "current", ref: "reform", total: "Total",
+    product: "Product", colVal: "Total value", colBase: "IBS/CBS base", colBaseIcms: "ICMS base", colRed: "Red. %", colTot: "Reform total", colDif: "Difference", now: "current", ref: "reform", total: "Total",
     colRb: "Gross revenue", colTp: "tpRBSN", colAnexo: "Annex", colDue: "Due", colPend: "Pending",
     toastRestore: "Example restored", toastClear: "Products cleared. Use Add product.", toastCsv: "CSV copied. Paste it into Excel.", toastCsvErr: "Could not copy. Check the clipboard permission.",
     share: "Share link", toastShare: "Link copied. Anyone who opens it sees this simulation exactly as on screen.", toastShared: "Shared simulation loaded.", toastShareErr: "Could not create the link.", sharePrompt: "Copy the simulation link:",
@@ -535,7 +535,7 @@ function calcRR(it, y, tipo) {
   // From 2027 IPI rates go to zero, except for products with incentivized industrialization in the ZFM (ADCT art. 126, III, a; LC 214/2025 art. 454).
   const icmsRateY = (it.icms || 0) / 100 * icmsFactor(y);
   const keep = params.keepPrice === true && !pisCofinsOn(y);
-  if (pisCofinsOn(y)) { out.icmsY = round2(icms * icmsFactor(y)); out.ipiY = ipi; }
+  if (pisCofinsOn(y)) { out.icmsY = round2(icms * icmsFactor(y)); out.ipiY = ipi; out.baseIcmsY = round2(vt + (cfSale ? ipi : 0)); }
   else if (keep) {
     // Price kept: the product value stays at today's value (vt) and the company keeps what it paid in PIS/COFINS.
     // CBS/IBS base = vt - ICMS; ICMS base = vt + IPI (final consumer) + CBS/IBS (SEFAZ-SP option). Solved in closed form.
@@ -544,12 +544,14 @@ function calcRR(it, y, tipo) {
     out.icmsY = round2(icmsRateY * vt * (1 + cfI + sI) / (1 + icmsRateY * sI));
     ibsCbs(round2(vt - out.icmsY));
     out.ipiY = round2(vt * iY);
+    out.baseIcmsY = round2(vt + (cfSale ? out.ipiY : 0) + (params.icmsIbs !== false ? out.cbs + out.ibs : 0));
   } else {
     // ICMS base = product value (net + IS + ICMS) + IPI on a final-consumer sale + CBS/IBS when the SEFAZ-SP option is on.
     const iY = it.zfm ? ipiRate : 0, cfI = cfSale ? iY : 0, k = 1 - icmsRateY * (1 + cfI);
     const tIbs = params.icmsIbs !== false ? out.cbs + out.ibs : 0;
     out.icmsY = k > 0 ? round2(icmsRateY * ((base0 + isv) * (1 + cfI) + tIbs) / k) : 0;
     out.ipiY = round2((base0 + isv + out.icmsY) * iY);
+    out.baseIcmsY = round2(base0 + isv + out.icmsY + (cfSale ? out.ipiY : 0) + tIbs);
   }
   out.pisY = pisCofinsOn(y) ? pis : 0; out.cofinsY = pisCofinsOn(y) ? cofins : 0;
   const ibscbsEf = stat ? 0 : out.cbs + out.ibs;
@@ -801,7 +803,7 @@ function detail(rep) {
   } else {
     rows = tab === "e" ? rep.ent : rep.sai;
     const lab = tab === "e" ? T("credits") : T("debits");
-    cols = [["valor", T("colVal")], ["cct", "cClassTrib", 1], ["red", T("colRed")], ["icms", "ICMS"], ["ipi", "IPI"], ["pis", "PIS"], ["cofins", "COFINS"], ["base", T("colBase")], ["cbs", "CBS"], ["ibsUF", "IBS UF"], ["ibsMun", "IBS Mun."], ["is", "IS"], ["icmsY", "ICMS " + rep.y], ["ipiY", "IPI " + rep.y], ["total", T("colTot")], ["dif", T("colDif")], ["atual", lab + " " + T("now")], ["reforma", lab + " " + T("ref")]];
+    cols = [["valor", T("colVal")], ["cct", "cClassTrib", 1], ["red", T("colRed")], ["icms", "ICMS"], ["ipi", "IPI"], ["pis", "PIS"], ["cofins", "COFINS"], ["base", T("colBase")], ["cbs", "CBS"], ["ibsUF", "IBS UF"], ["ibsMun", "IBS Mun."], ["is", "IS"], ["baseIcmsY", T("colBaseIcms") + " " + rep.y], ["icmsY", "ICMS " + rep.y], ["ipiY", "IPI " + rep.y], ["total", T("colTot")], ["dif", T("colDif")], ["atual", lab + " " + T("now")], ["reforma", lab + " " + T("ref")]];
   }
   let h = `<thead><tr><th>${T("product")}</th><th>NCM</th>${cols.map(([, t]) => `<th class="r">${t}</th>`).join("")}</tr></thead><tbody>`;
   rows.forEach((r) => {
